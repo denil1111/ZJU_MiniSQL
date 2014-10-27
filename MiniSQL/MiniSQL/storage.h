@@ -11,15 +11,22 @@
 #define BLOCK_SIZE 8*1024
 
 #include <string>
-class Block
+struct Block
 {
-public:
     unsigned char data[BLOCK_SIZE];
-    Block(unsigned char[]);
+    Block(){
+        
+    }
+    Block(unsigned char* data)
+    {
+        for (int i=0;i<BLOCK_SIZE;i++)
+            this->data[i]=data[i];
+    }
     unsigned char &operator [](const int index)
     {
         return data[index];
     }
+    void copy(unsigned char*);
 };
 struct Address
 {
@@ -30,9 +37,9 @@ struct Address
 class Storage
 {
 public:
-    Storage();
-    Block read_data(Address);
-    void write_data(Address,Block);
+    Storage(){}
+    void read_data(Address,Block*);
+    void write_data(Address,const Block*);
     
 };
 

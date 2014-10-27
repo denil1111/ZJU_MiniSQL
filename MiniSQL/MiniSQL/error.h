@@ -21,8 +21,4 @@ public:
     void print_error();
     
 };
-const std::string Error::error_list[]={
-    "database storage failed",
-    "..."
-};
 #endif /* defined(__MiniSQL__error__) */

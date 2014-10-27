@@ -7,4 +7,16 @@
 //
 
 #include "error.h"
-#include <stdio.h>
+#include <iostream>
+const std::string Error::error_list[]={
+    "database storage failed",
+    "..."
+};
+Error::Error(int number)
+{
+    error_number=number;
+}
+void Error::print_error()
+{
+    std::cout<<error_list[error_number];
+}

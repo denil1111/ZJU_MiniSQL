@@ -9,9 +9,18 @@
 #include "storage.h"
 #include <string>
 #include "error.h"
-Block Storage::read_data(Address address){
+#include <iostream>
+void Block::copy(unsigned char* new_data)
+{
+    for (int i=0;i<BLOCK_SIZE;i++)
+    {
+        data[i]=new_data[i];
+    }
+}
+void Storage::read_data(Address address,Block* block_data){
     std:: string full_path=address.database_name+"/"+address.file_name;
-    FILE *file=fopen(full_path.c_str(),"rb");
+    FILE *file=fopen(full_path.c_str(),"rb+");
+    fseek(file,address.offset,SEEK_SET);
     if (file==NULL)
     {
         Error error(0);
@@ -25,23 +34,24 @@ Block Storage::read_data(Address address){
         Error error(0);
         throw error;
     }
-    Block read_block(temp_data);
-    return read_block;
+    block_data->copy(temp_data);
+    fclose(file);
 }
-void Storage::write_data(Address address,Block block_data){
+void Storage::write_data(Address address,const Block* block_data){
     std:: string full_path=address.database_name+"/"+address.file_name;
-    FILE *file=fopen(full_path.c_str(),"wb");
+    FILE *file=fopen(full_path.c_str(),"rb+");
+    fseek(file,address.offset,SEEK_SET);
     if (file==NULL)
     {
         Error error(0);
         throw error;
     }
     size_t res;
-    res=fwrite(block_data.data,BLOCK_SIZE,1,file);
+    res=fwrite(block_data->data,BLOCK_SIZE,1,file);
     if (res==0)
     {
         Error error(0);
         throw error;
     }
-
+    fclose(file);
 }
