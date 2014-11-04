@@ -20,7 +20,7 @@ void Block::copy(unsigned char* new_data)
 void Storage::read_data(Address address,Block* block_data){
     std:: string full_path=address.database_name+"/"+address.file_name;
     FILE *file=fopen(full_path.c_str(),"rb+");
-    fseek(file,address.offset,SEEK_SET);
+    fseek(file,address.file_offset*BLOCK_SIZE,SEEK_SET);
     if (file==NULL)
     {
         Error error(0);
@@ -40,7 +40,7 @@ void Storage::read_data(Address address,Block* block_data){
 void Storage::write_data(Address address,const Block* block_data){
     std:: string full_path=address.database_name+"/"+address.file_name;
     FILE *file=fopen(full_path.c_str(),"rb+");
-    fseek(file,address.offset,SEEK_SET);
+    fseek(file,address.file_offset*BLOCK_SIZE,SEEK_SET);
     if (file==NULL)
     {
         Error error(0);

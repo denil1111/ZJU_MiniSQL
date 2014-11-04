@@ -9,8 +9,8 @@
 #include "error.h"
 #include <iostream>
 const std::string Error::error_list[]={
-    "database storage failed",
-    "..."
+    "database storage failed",  //1
+    "..."                       //2
 };
 Error::Error(int number)
 {

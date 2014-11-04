@@ -22,6 +22,11 @@ struct Block
         for (int i=0;i<BLOCK_SIZE;i++)
             this->data[i]=data[i];
     }
+    void copy(Block data)
+    {
+        for (int i=0;i<BLOCK_SIZE;i++)
+            this->data[i]=data[i];
+    }
     unsigned char &operator [](const int index)
     {
         return data[index];
@@ -32,7 +37,16 @@ struct Address
 {
     std::string database_name;
     std::string file_name;
-    int offset;
+    int file_offset;
+    int block_offset;
+    bool block_equal(Address another)
+    {
+        if (database_name==another.database_name)
+            if (file_name==another.file_name)
+                if (file_offset==another.file_offset)
+                    return true;
+        return false;
+    }
 };
 class Storage
 {
