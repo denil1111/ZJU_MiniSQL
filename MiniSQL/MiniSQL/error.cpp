@@ -15,8 +15,14 @@ const std::string Error::error_list[]={
 Error::Error(int number)
 {
     error_number=number;
+    error_content="";
+}
+Error::Error(int number,std::string content)
+{
+    error_number=number;
+    error_content=content;
 }
 void Error::print_error()
 {
-    std::cout<<error_list[error_number];
+    std::cout<<error_list[error_number]<<":"<<error_content<<std::endl;
 }

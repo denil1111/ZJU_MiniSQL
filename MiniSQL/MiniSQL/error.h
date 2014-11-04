@@ -15,9 +15,11 @@ class Error
 private:
     static const std::string error_list[];
     int error_number;
+    std::string error_content;
     
 public:
     Error(int);
+    Error(int,std::string);
     void print_error();
     
 };
