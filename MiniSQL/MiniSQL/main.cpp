@@ -10,7 +10,8 @@
 #include "storage.h"
 #include "error.h"
 #include "buffer.h"
-void storagetest()
+#include "record.h"
+void storage_test()
 {
     Block* data=new Block();
     Address address;
@@ -44,7 +45,7 @@ void storagetest()
     }
 
 }
-int main(int argc, const char * argv[])
+void buffer_test()
 {
     Block* data=new Block();
     Address address;
@@ -110,6 +111,53 @@ int main(int argc, const char * argv[])
     }
     Block newblocknew(newdata);
     buffer.write_data(address,&newblocknew);
-
+}
+int main(int argc, const char * argv[])
+{
+    Record record;
+    Table_info table;
+    table.table_name="friend";
+    table.database="zyh";
+    Attribute attribute;
+    Tuple_data tuple_data(90);
+    Tuple_info tuple;
+    attribute.type=1;
+    attribute.size=4;
+    table.attribute_list.push_back(attribute);
+    attribute.type=3;
+    attribute.size=6;
+    table.attribute_list.push_back(attribute);
+    attribute.type=3;
+    attribute.size=4;
+    table.attribute_list.push_back(attribute);
+    attribute.type=3;
+    attribute.size=3;
+    table.attribute_list.push_back(attribute);
+    attribute.type=2;
+    attribute.size=4;
+    table.attribute_list.push_back(attribute);
+    tuple.info.push_back("44");
+    tuple.info.push_back("abcde");
+    tuple.info.push_back("ac");
+    tuple.info.push_back("ac");
+    tuple.info.push_back("44.4");
+    Tuple_info tuple_unpack;
+    for (int i=0;i<5;i++)
+        tuple_unpack.info.push_back("");
+    try
+    {
+        record.pack(table,tuple,&tuple_data);
+    }
+    catch (Error error)
+    {
+        error.print_error();
+    }
+    printf("before unpack\n");
+      printf("\n");
+    record.unpack(table,&tuple_unpack,&tuple_data);
+    for (int i=0;i<5;i++)
+        std::cout<<tuple_unpack.info[i]<<std::endl;
+    for (int i=0;i<30;i++)
+        printf("%X  ",tuple_data.data[i]);
     return 0;
 }
