@@ -50,13 +50,14 @@ struct node{
     struct node * r;
 
     //delete
-    std::vector <std::string> tbl_list;
-    node * where_clause;
+    std::vector <std::string> del_tbl_list;
+    node * del_where_clause;
 
     //select
     std::vector <std::string> select_list;
-    std::vector <node> tbl_list;
-    node * where_clause;
+    std::vector <std::string> select_tbl_list;
+    node * nested_tbl;
+    node * select_where_clause;
 
     //
 

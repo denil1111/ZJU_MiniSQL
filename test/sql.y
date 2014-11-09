@@ -9,10 +9,6 @@
  */
 
 %{
-extern int yylex();
-void yyerror(char *s, ...);
-void emit(char *s, ...);
-
 #include <stdlib.h>
 #include <stdarg.h>
 #include <stdio.h>  
@@ -22,6 +18,12 @@ void emit(char *s, ...);
 #include <iostream>
 
 #include "sqltree.hpp"
+
+std::string all_s;
+
+extern int yylex();
+void yyerror(char *s, ...);
+void emit(char *s, ...);
 %}
 
 
@@ -34,6 +36,7 @@ void emit(char *s, ...);
 
   SELECT_NODE * selece_node_p;
   std::vector<std::string> *string_list;
+  std::vector<node> *node_list;
 
   node* node_p;
  
@@ -98,9 +101,8 @@ void emit(char *s, ...);
 %type <string_list> select_expr_list
 %type <node_p> expr
 %type <node_p> opt_where
+%type <string_list> table_reference
 
-
-%type <intval> table_reference
 %type <intval> insert_vals insert_vals_list
 %type <intval> opt_length
 %type <intval> column_atts data_type create_col_list column_list
@@ -120,22 +122,77 @@ stmt: select_stmt {
 
 select_stmt: SELECT select_expr_list
      FROM table_reference
-     opt_where {$$=new SELECT_NODE;$$->select_list=*$2;free($2);} ;
-;
+     opt_where {
+      $$=new SELECT_NODE;
+      $$->select_list=*$2;
+      free($2);
+
+      //std::cout<<$$->select_list[0]<<std::endl;
+      //std::cout<<$$->select_list[1]<<std::endl;
+      //std::cout<<<<std::endl;
+
+      //std::cout<<$4->select_tbl_list[0]<<std::endl;
+      //std::cout<<$4->select_tbl_list[1]<<std::endl;
+
+      $$->select_tbl_list=*$4;
+      free($4);
+      //std::cout<<$$->select_tbl_list[0]<<std::endl;
+      //std::cout<<$$->select_tbl_list[1]<<std::endl;
+      
+
+      //std::cout<<$5->cmp<<std::endl;
+      if($5==NULL){
+        std::cout<<"null"<<std::endl;
+        $$->select_where_clause=NULL;
+      }
+      else{
+        $$->select_where_clause=new FORMULA_NODE;//must new 
+        *($$->select_where_clause)=*$5;
+        free($5);
+        //std::cout<<$$->select_where_clause->cmp<<std::endl;
+        //std::cout<<$$->select_where_clause->l->name<<std::endl;
+      } 
+    }
+    | SELECT select_expr_list
+     FROM '(' select_stmt ')' 
+     opt_where {
+        $$=new SELECT_NODE;
+        $$->select_list=*$2;
+        free($2);
+
+        std::cout<<"begin"<<std::endl;
+        $$->nested_tbl=new SELECT_NODE;
+        *($$->nested_tbl)=*$5;
+        std::cout<<$$->nested_tbl->select_list[0]<<std::endl;
+        free($5);
+
+        if($7==NULL)
+        {
+            std::cout<<"null"<<std::endl;
+            $$->select_where_clause=NULL;
+        }
+        else
+        {
+            $$->select_where_clause=new FORMULA_NODE;//must new 
+            *($$->select_where_clause)=*$7;
+            free($7);
+        }
+
+     }
+    ;
 
 opt_where: {$$=NULL;} /* nil */ 
-   | WHERE expr {$$=new FORMULA_NODE;*$$=*$2;free($2);};
+   | WHERE expr {$$=new FORMULA_NODE;*$$=*$2;free($2);std::cout<<$$->cmp<<std::endl;};
 
 select_expr_list: NAME {$$=new std::vector<std::string>;$$->push_back($1);}
     | select_expr_list ',' NAME {$$->push_back($3);}
+    | '*' {$$=new std::vector<std::string>;$$->push_back("select_all_flag");}
     ;
 
-table_reference: NAME {emit("TABLE %s",$1);}
-  | table_subquery { emit("SUBQUERYAS"); }
+table_reference: NAME {$$=new std::vector<std::string>;
+    $$->push_back($1);}
+  | table_reference ',' NAME {$$->push_back($3);}
   ;
-
-table_subquery: '(' select_stmt ')' { emit("SUBQUERY"); }
-   ;
 
 
 /* statements: delete statement */
@@ -218,27 +275,32 @@ data_type:
    ;
 
 /**** expressions ****/
-expr: NAME          {}
-   | STRING        { emit("STRING %s", $1); free($1); }
-   | INTNUM        { emit("NUMBER %d", $1); }
-   | APPROXNUM     { emit("FLOAT %g", $1); }
+expr: NAME          {std::string all_s($1);$$=new_name(all_s);
+    //std::cout<<$$->name<<std::endl;
+    }
+   | STRING        {std::string all_s($1);$$=new_name(all_s);}
+   | INTNUM        {$$=new_int($1);std::cout<<all_s<<std::endl;std::cout<<$$->int_num<<std::endl;}
+   | APPROXNUM     {$$=new_float($1);}
    ;
 
-expr: expr '+' expr { emit("ADD"); }
-   | expr '-' expr { emit("SUB"); }
-   | expr '*' expr { emit("MUL"); }
-   | expr '/' expr { emit("DIV"); }
-   | expr '%' expr { emit("MOD"); }
-   | expr MOD expr { emit("MOD"); }
-   | '-' expr %prec UMINUS { emit("NEG"); }
-   | expr ANDOP expr { emit("AND"); }
-   | expr OR expr { emit("OR"); }
-   | expr COMPARISON expr { emit("CMP %d", $2); }
-   | expr COMPARISON '(' select_stmt ')' { emit("CMPSELECT %d", $2); }
-   | expr SHIFT expr { emit("SHIFT %s", $2==1?"left":"right"); }
-   | NOT expr { emit("NOT"); }
-   | '!' expr { emit("NOT"); }
-   ;    
+expr: expr '+' expr {$$=new_formula(7,$1,$3);}
+   | expr '-' expr {$$=new_formula(8,$1,$3);}
+   | expr '*' expr {$$=new_formula(9,$1,$3);}
+   | expr '/' expr {$$=new_formula(10,$1,$3);}
+   | expr '%' expr {$$=new_formula(11,$1,$3);}
+   | expr MOD expr {$$=new_formula(11,$1,$3);}
+   | '-' expr %prec UMINUS {$$=new_formula(12,$2,NULL);}
+   | expr ANDOP expr {$$=new_formula(13,$1,$3);}
+   | expr OR expr {$$=new_formula(14,$1,$3);}
+   | expr COMPARISON expr {
+    //$$=new FORMULA_NODE;//do not must
+    $$=new_formula($2,$1,$3);
+    //std::cout<<$$->cmp<<std::endl;
+    //std::cout<<$$->l->name<<std::endl;
+  }
+   | NOT expr {$$=new_formula(15,$2,NULL);}
+   | '!' expr {$$=new_formula(15,$2,NULL);}
+   ;  
 
 %%
 
