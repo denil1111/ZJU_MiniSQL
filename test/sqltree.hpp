@@ -26,6 +26,11 @@ enum nodekind{
     N_DELETE,
     N_INSERT,
     N_CREATE_DATABASE,
+    N_DROP_DATABASE,
+    N_DROP_TABLE,
+    N_DROP_INDEX,
+    N_CREATE_INDEX,
+
     N_NULL
 };
 
@@ -60,7 +65,29 @@ struct node{
     node * nested_tbl;
     node * select_where_clause;
 
-    //
+    //insert
+    std::vector <std::vector<std::string> > insert_value_list;
+    std::vector <std::string> insert_tbl_list;
+
+    //create database
+    std::string create_db_name;
+
+    //drop database
+    std::string drop_db_name;
+
+    //drop table
+    std::string drop_tbl_name;
+
+    //drop index
+    std::string drop_index_name;
+    std::string drop_index_tbl;
+
+    //create index
+    std::string create_index_name;
+    std::string create_index_tbl;
+    std::string create_index_attr;
+
+
 
 };
 
@@ -90,16 +117,30 @@ struct DELETE_NODE:public node{
     DELETE_NODE(){kind=N_DELETE;}
 };
 
-// struct INSERT_NODE:public node{
-//     vector <string> tbl_list;
-//     vector <string> value_list;
-//     INSERT(){kind=N_INSERT;}
-// };
+struct INSERT_NODE:public node{
+    INSERT_NODE(){kind=N_INSERT;}
+};
 
-// struct CREATE_DATABASE_NODE:public node{
-//     string db_name;
-//     CREATE_DATABASE(){kind=N_CREATE_DATABASE;}
-// };
+struct CREATE_DATABASE_NODE:public node{
+    CREATE_DATABASE_NODE(){kind=N_CREATE_DATABASE;}
+};
+
+struct DROP_DATABASE_NODE:public node{
+    DROP_DATABASE_NODE(){kind=N_DROP_DATABASE;}
+};
+
+struct DROP_TABLE_NODE:public node{
+    DROP_TABLE_NODE(){kind=N_DROP_TABLE;}
+};
+
+struct DROP_INDEX_NODE:public node{
+    DROP_INDEX_NODE(){kind=N_DROP_INDEX;}
+};
+
+struct CREATE_INDEX_NODE:public node{
+    CREATE_INDEX_NODE(){kind=N_CREATE_INDEX;}
+};
+
 
 // struct ATTR_NODE{
 //     string attr_name;

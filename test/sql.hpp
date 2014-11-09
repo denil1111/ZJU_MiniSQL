@@ -114,7 +114,7 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 30 "sql.y"
+#line 32 "sql.y"
 {
  
   int intval;
@@ -122,10 +122,10 @@ typedef union YYSTYPE
   char * strval;
   int subtok;
 
-  SELECT_NODE * selece_node_p;
-  std::vector<std::string> *string_list;
-  std::vector<node> *node_list;
+  std::string * str;
 
+  std::vector<std::string> *string_list;
+  std::vector< std::vector<std::string> > *string_vec;
   node* node_p;
  
   //INT_NODE * int_node_p;

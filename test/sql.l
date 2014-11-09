@@ -27,12 +27,13 @@ DATABASE	{ return DATABASE; }
 DATABASES	{ return DATABASES; }
 DELETE	{ return DELETE; }
 DROP	{ return DROP; }
-FLOAT4?	{ return FLOAT; }
+FLOAT	{ return FLOAT; }
 FROM	{ return FROM; }
 INSERT	{ return INSERT; }   
 INT	{ return INT; }
 INTO	{ return INTO; }
-INDEX|KEY	{ return KEY; }
+INDEX {return INDEX;}
+KEY	{ return KEY; }
 NOT	{ return NOT; }
 ON  { return ON; }
 OR	{ return OR; }

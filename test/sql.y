@@ -16,9 +16,11 @@
 #include <string>
 #include <vector>
 #include <iostream>
-
+#include <sstream>
 #include "sqltree.hpp"
 
+
+std::stringstream ss;
 std::string all_s;
 
 extern int yylex();
@@ -34,10 +36,10 @@ void emit(char *s, ...);
   char * strval;
   int subtok;
 
-  SELECT_NODE * selece_node_p;
-  std::vector<std::string> *string_list;
-  std::vector<node> *node_list;
+  std::string * str;
 
+  std::vector<std::string> *string_list;
+  std::vector< std::vector<std::string> > *string_vec;
   node* node_p;
  
   //INT_NODE * int_node_p;
@@ -105,7 +107,18 @@ void emit(char *s, ...);
 
 %type <node_p> delete_stmt
 
-%type <intval> insert_vals insert_vals_list
+%type <node_p> insert_stmt
+%type <string_list> insert_vals 
+%type <string_vec> insert_vals_list
+%type <str> term
+
+%type <node_p> create_database_stmt 
+%type <node_p> create_index_stmt 
+%type <node_p> create_table_stmt
+%type <node_p> drop_table_stmt 
+%type <node_p> drop_db_stmt 
+%type <node_p> drop_index_stmt
+
 %type <intval> opt_length
 %type <intval> column_atts data_type create_col_list column_list
 
@@ -240,33 +253,61 @@ delete_stmt: DELETE FROM table_reference opt_where
     ;
 
 /* statements: insert statement */
-stmt: insert_stmt { emit("STMT"); }
+stmt: insert_stmt {}
    ;
 
-insert_stmt: INSERT opt_into table_reference VALUES insert_vals_list
-    { emit("INSERTVALS"); }
+insert_stmt: INSERT INTO table_reference VALUES insert_vals_list
+    {
+        $$=new INSERT_NODE;
+
+        $$->insert_tbl_list=*$3;
+        //std::cout<<$$->insert_tbl_list[0]<<std::endl;
+        free($3);
+
+        $$->insert_value_list=*$5;
+        //std::cout<<$$->value_list[0][0]<<std::endl;
+        //std::cout<<$$->value_list[1][0]<<std::endl;
+        free($5);
+    }
    ;
 
-
-opt_into: INTO | /* nil */
+insert_vals_list: '(' insert_vals ')' {$$=new std::vector<std::vector<std::string> >;$$->push_back(*$2);delete $2;}
+   | insert_vals_list ',' '(' insert_vals ')' {$$->push_back(*$4);free($4);}
    ;
 
-insert_vals_list: '(' insert_vals ')' { emit("VALUES %d", $2); $$ = 1; }
-   | insert_vals_list ',' '(' insert_vals ')' { emit("VALUES %d", $4); $$ = $1 + 1; }
+insert_vals: term {$$=new std::vector<std::string>;
+    $$->push_back(*$1);}
+   | insert_vals ',' term {$$->push_back(*$3);}
    ;
 
-insert_vals: expr { $$ = 1; }
-   | insert_vals ',' expr { $$ = $1 + 1; }
+term: NAME          {$$=new std::string($1);}
+   | STRING        {$$=new std::string($1);}
+   | INTNUM        {
+    std::stringstream ss;
+    $$=new std::string;
+    ss<<$1;
+    ss>>*$$;
+    //std::cout<<*$$<<std::endl;
+   }
+   | APPROXNUM     {
+    std::stringstream ss;
+    $$=new std::string;
+    ss<<$1;ss>>*$$;
+    //std::cout<<*$$<<std::endl;
+    }
    ;
-
-
 
 /** create database **/
 stmt: create_database_stmt { emit("STMT"); }
    ;
 
 create_database_stmt: 
-     CREATE DATABASE NAME { emit("CREATEDATABASE"); }
+     CREATE DATABASE NAME {
+        $$=new CREATE_DATABASE_NODE;
+        $$->create_db_name=std::string($3);
+        //std::cout<<$$->db_name<<std::endl;
+        free($3);
+    }
    ;
 
 /** create table **/
@@ -309,6 +350,59 @@ data_type:
    | FLOAT { $$ = 90000; }
    | VARCHAR opt_length { $$ = 130000; }
    ;
+
+//create index
+stmt: create_index_stmt { emit("STMT"); }
+   ;
+
+create_index_stmt:CREATE INDEX NAME ON NAME '(' NAME ')' {
+        $$=new CREATE_INDEX_NODE;
+        $$->create_index_name=std::string($3);
+        $$->create_index_tbl=std::string($5);
+        $$->create_index_attr=std::string($7);
+        //dropstd::cout<<$$->create_index_name<<std::endl;
+        free($3);
+        free($5);
+        free($7);
+    }
+    ; 
+
+//drop table
+stmt: drop_table_stmt { emit("STMT"); }
+   ;
+
+drop_table_stmt:DROP TABLE NAME {
+        $$=new DROP_TABLE_NODE;
+        $$->drop_tbl_name=std::string($3);
+        //std::cout<<$$->drop_tbl_name<<std::endl;
+        free($3);
+    }
+    ;  
+
+//drop db
+stmt: drop_db_stmt { emit("STMT"); }
+   ;
+drop_db_stmt:DROP DATABASE NAME {
+        $$=new DROP_TABLE_NODE;
+        $$->drop_db_name=std::string($3);
+        //std::cout<<$$->drop_db_name<<std::endl;
+        free($3);
+    }
+    ;  
+
+//drop index
+stmt: drop_index_stmt { emit("STMT"); }
+   ;
+
+drop_index_stmt:DROP INDEX NAME ON NAME {
+        $$=new DROP_INDEX_NODE;
+        $$->drop_index_name=std::string($3);
+        $$->drop_index_tbl=std::string($5);
+        //std::cout<<$$->drop_index_name<<std::endl;
+    }
+    ; 
+
+
 
 /**** expressions ****/
 expr: NAME          {std::string all_s($1);$$=new_name(all_s);
