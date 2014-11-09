@@ -21,16 +21,18 @@ enum nodekind{
     N_NAME,
     
     N_FORMULA,
+    N_ATTR,
     
     N_SELECT,
     N_DELETE,
     N_INSERT,
+    N_SPECIAL_ATTR,
     N_CREATE_DATABASE,
+    N_CREATE_TABLE,
+    N_CREATE_INDEX,
     N_DROP_DATABASE,
     N_DROP_TABLE,
     N_DROP_INDEX,
-    N_CREATE_INDEX,
-
     N_NULL
 };
 
@@ -56,7 +58,7 @@ struct node{
 
     //delete
     std::vector <std::string> del_tbl_list;
-    int star_flag=0;
+    bool star_flag=false;
     node * del_where_clause;
 
     //select
@@ -87,7 +89,19 @@ struct node{
     std::string create_index_tbl;
     std::string create_index_attr;
 
+    //create table
+    std::string create_tbl_name;
 
+
+    //attr
+    std::string attr_name;
+    std::string type;//int:1,float:2,varchar:3
+    int char_length;
+    bool unique_flag=false;
+
+    //sp
+    int key_type;
+    std::vector<std::string> key_attr;
 
 };
 
@@ -140,20 +154,27 @@ struct DROP_INDEX_NODE:public node{
 struct CREATE_INDEX_NODE:public node{
     CREATE_INDEX_NODE(){kind=N_CREATE_INDEX;}
 };
+struct ATTR_NODE:public node{
+    ATTR_NODE(){kind=N_ATTR;};
+};
+
+struct SPECIAL_ATTR_NODE:public node{
+    SPECIAL_ATTR_NODE(){kind=N_SPECIAL_ATTR;};
+};
+
+struct CREATE_TABLE_NODE:public node{
+    std::vector<ATTR_NODE> attr_list;
+    std::vector<SPECIAL_ATTR_NODE> sp_list;
+    CREATE_TABLE_NODE(){kind=N_CREATE_TABLE;}
+};
 
 
-// struct ATTR_NODE{
-//     string attr_name;
-//     string type;
-//     int char_length=0;
-//     bool unique_flag=false;
-//     bool key_index_flag=false;
-//     bool primary_key=false;
-// };
 
 struct FORMULA_NODE:public node{
     FORMULA_NODE(){kind=N_FORMULA;}
 };
+
+
 
 FORMULA_NODE *
 new_formula(int cmp, node *l, node *r);

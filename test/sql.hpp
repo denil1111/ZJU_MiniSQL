@@ -121,12 +121,21 @@ typedef union YYSTYPE
   double floatval;
   char * strval;
   int subtok;
+  bool boolval;
 
   std::string * str;
+
+  CREATE_TABLE_NODE * create_tbl_p;
+  SPECIAL_ATTR_NODE * sp;
+  ATTR_NODE * attr_p;
 
   std::vector<std::string> *string_list;
   std::vector< std::vector<std::string> > *string_vec;
   node* node_p;
+
+  std::vector<ATTR_NODE> *attr_node_list;
+  std::vector<SPECIAL_ATTR_NODE> *sp_node_list;
+
  
   //INT_NODE * int_node_p;
   //FLOAT_NODE * float_node_p;
@@ -136,7 +145,7 @@ typedef union YYSTYPE
   //vector <node> name_list;  
 }
 /* Line 1529 of yacc.c.  */
-#line 140 "sql.hpp"
+#line 149 "sql.hpp"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

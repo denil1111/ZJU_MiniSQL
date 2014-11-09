@@ -35,12 +35,21 @@ void emit(char *s, ...);
   double floatval;
   char * strval;
   int subtok;
+  bool boolval;
 
   std::string * str;
+
+  CREATE_TABLE_NODE * create_tbl_p;
+  SPECIAL_ATTR_NODE * sp;
+  ATTR_NODE * attr_p;
 
   std::vector<std::string> *string_list;
   std::vector< std::vector<std::string> > *string_vec;
   node* node_p;
+
+  std::vector<ATTR_NODE> *attr_node_list;
+  std::vector<SPECIAL_ATTR_NODE> *sp_node_list;
+
  
   //INT_NODE * int_node_p;
   //FLOAT_NODE * float_node_p;
@@ -114,13 +123,23 @@ void emit(char *s, ...);
 
 %type <node_p> create_database_stmt 
 %type <node_p> create_index_stmt 
-%type <node_p> create_table_stmt
 %type <node_p> drop_table_stmt 
 %type <node_p> drop_db_stmt 
 %type <node_p> drop_index_stmt
 
+%type <create_tbl_p> create_table_stmt
+%type <sp_node_list> create_sp_list
+%type <sp> create_sp
+%type <string_list> column_list
+
+
+%type <attr_p> create_definition
 %type <intval> opt_length
-%type <intval> column_atts data_type create_col_list column_list
+%type <intval> data_type
+%type <boolval> column_atts 
+%type <attr_node_list> create_col_list 
+
+
 
 %start stmt_list
 
@@ -248,7 +267,7 @@ delete_stmt: DELETE FROM table_reference opt_where
 
         //std::cout<<$$->del_tbl_list[0]<<std::endl;
 
-        $$->star_flag=1;
+        $$->star_flag=true;
     }
     ;
 
@@ -315,41 +334,94 @@ stmt: create_table_stmt { emit("STMT"); }
    ;
 
 create_table_stmt: CREATE TABLE NAME
-   '(' create_col_list ')' { emit("CREATETABLE %s %d", $3, $5);  }
+   '(' create_col_list ','create_sp_list ')'  
+    {
+        $$=new CREATE_TABLE_NODE; 
+        $$->create_tbl_name=std::string($3);
+        $$->attr_list=*$5;
+        std::cout<<$$->attr_list[0].attr_name<<std::endl;
+        std::cout<<$$->attr_list[0].char_length<<std::endl;
 
-create_col_list: create_definition { $$ = 1; }
-    | create_col_list ',' create_definition { $$ = $1 + 1; }
+        $$->sp_list=*$7;
+        std::cout<<$$->sp_list[0].key_type<<std::endl;
+        std::cout<<$$->sp_list[0].key_attr[0]<<std::endl;
+
+        free($7);
+        free($5);
+    }
+   ;
+
+create_sp_list: {$$=new std::vector<SPECIAL_ATTR_NODE>;}
+    | create_sp 
+        {
+            $$=new std::vector<SPECIAL_ATTR_NODE>;
+            $$->push_back(*$1);
+            free($1);
+        }
+    | create_sp_list ',' create_sp {$$->push_back(*$3);free($3);}  
+    ; 
+
+create_sp: PRIMARY KEY '(' column_list ')'    
+    {
+        $$=new SPECIAL_ATTR_NODE;
+        $$->key_type=1;
+        $$->key_attr=*$4;
+        free($4);
+    }
+    | KEY '(' column_list ')'            
+    {
+        $$=new SPECIAL_ATTR_NODE;
+        $$->key_type=3;
+        $$->key_attr=*$3;
+        free($3);
+    }
+    | INDEX '(' column_list ')'          
+    {   
+        $$=new SPECIAL_ATTR_NODE;
+        $$->key_type=3;
+        $$->key_attr=*$3;
+        free($3);
+    }
     ;
 
-create_definition: { emit("STARTCOL"); } NAME data_type column_atts
-                   { emit("COLUMNDEF %d %s", $3, $2); free($2); }
-
-    | PRIMARY KEY '(' column_list ')'    { emit("PRIKEY"); }
-    | KEY '(' column_list ')'            { emit("KEY"); }
-    | INDEX '(' column_list ')'          { emit("KEY"); }
-    ;
-
-column_atts: /* nil */ { $$ = 0; }
-    | column_atts UNIQUE '(' column_list ')' { emit("ATTR UNIQUEKEY"); $$ = $1 + 1; }
-    | column_atts UNIQUE KEY { emit("ATTR UNIQUEKEY"); $$ = $1 + 1; }
-    | column_atts PRIMARY KEY { emit("ATTR PRIKEY"); $$ = $1 + 1; }
-    | column_atts KEY { emit("ATTR PRIKEY"); $$ = $1 + 1; }
-    ;
-
-column_list: NAME { emit("COLUMN %s", $1); free($1); $$ = 1; }
-  | column_list ',' NAME  { emit("COLUMN %s",$3); free($3); $$ = $1 + 1; }
+column_list: NAME {$$=new std::vector<std::string>;$$->push_back($1); }
+  | column_list ',' NAME  {$$->push_back($3); }
   ;
 
-opt_length: /* nil */ { $$ = 0; }
+
+create_col_list: create_definition 
+    {
+        $$=new std::vector<ATTR_NODE>;
+        $$->push_back(*$1);
+        free($1);
+    }
+    | create_col_list ',' create_definition {$$->push_back(*$3);free($3);}
+    ;
+
+create_definition: NAME data_type opt_length column_atts
+            {
+                $$=new ATTR_NODE;
+                $$->attr_name=std::string($1);
+                $$->type=$2;
+                $$->char_length=$3;
+                $$->unique_flag=$4;
+            }
+    ;
+
+column_atts:{$$=false;}
+    | column_atts UNIQUE {$$=true;}
+    ;
+
+opt_length:{$$=0;}
    | '(' INTNUM ')' { $$ = $2; }
    ;
 
-
-data_type:
-   | INT { $$ = 40000; }
-   | FLOAT { $$ = 90000; }
-   | VARCHAR opt_length { $$ = 130000; }
+data_type: INT { $$ = 1; }
+   | FLOAT { $$ = 2; }
+   | VARCHAR { $$ = 3; }
    ;
+
+
 
 //create index
 stmt: create_index_stmt { emit("STMT"); }
