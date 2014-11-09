@@ -51,6 +51,7 @@ struct node{
 
     //delete
     std::vector <std::string> del_tbl_list;
+    int star_flag=0;
     node * del_where_clause;
 
     //select

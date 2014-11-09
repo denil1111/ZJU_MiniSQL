@@ -103,6 +103,8 @@ void emit(char *s, ...);
 %type <node_p> opt_where
 %type <string_list> table_reference
 
+%type <node_p> delete_stmt
+
 %type <intval> insert_vals insert_vals_list
 %type <intval> opt_length
 %type <intval> column_atts data_type create_col_list column_list
@@ -142,7 +144,7 @@ select_stmt: SELECT select_expr_list
 
       //std::cout<<$5->cmp<<std::endl;
       if($5==NULL){
-        std::cout<<"null"<<std::endl;
+        //std::cout<<"null"<<std::endl;
         $$->select_where_clause=NULL;
       }
       else{
@@ -160,15 +162,15 @@ select_stmt: SELECT select_expr_list
         $$->select_list=*$2;
         free($2);
 
-        std::cout<<"begin"<<std::endl;
+        //std::cout<<"begin"<<std::endl;
         $$->nested_tbl=new SELECT_NODE;
         *($$->nested_tbl)=*$5;
-        std::cout<<$$->nested_tbl->select_list[0]<<std::endl;
+        //std::cout<<$$->nested_tbl->select_list[0]<<std::endl;
         free($5);
 
         if($7==NULL)
         {
-            std::cout<<"null"<<std::endl;
+            //std::cout<<"null"<<std::endl;
             $$->select_where_clause=NULL;
         }
         else
@@ -182,7 +184,11 @@ select_stmt: SELECT select_expr_list
     ;
 
 opt_where: {$$=NULL;} /* nil */ 
-   | WHERE expr {$$=new FORMULA_NODE;*$$=*$2;free($2);std::cout<<$$->cmp<<std::endl;};
+   | WHERE expr {$$=new FORMULA_NODE;*$$=*$2;free($2);
+    //std::cout<<$$->cmp<<std::endl;
+    }
+    ;
+
 
 select_expr_list: NAME {$$=new std::vector<std::string>;$$->push_back($1);}
     | select_expr_list ',' NAME {$$->push_back($3);}
@@ -199,9 +205,39 @@ table_reference: NAME {$$=new std::vector<std::string>;
 stmt: delete_stmt { emit("STMT"); }
    ;
 
-
 delete_stmt: DELETE FROM table_reference opt_where
-            { emit("DELETEMULTI"); }
+    {
+      $$=new DELETE_NODE;
+
+      $$->del_tbl_list=*$3;
+      free($3);
+      //std::cout<<$$->select_tbl_list[0]<<std::endl;
+      //std::cout<<$$->select_tbl_list[1]<<std::endl;
+      
+
+      //std::cout<<$4->cmp<<std::endl;
+      if($4==NULL){
+        yyerror("expected where clause!");
+      }
+      else{
+        $$->del_where_clause=new DELETE_NODE;//must new 
+        *($$->del_where_clause)=*$4;
+        free($4);
+        //std::cout<<$$->del_where_clause->cmp<<std::endl;
+        //std::cout<<$$->del_where_clause->l->name<<std::endl;
+      }  
+    }
+    | DELETE '*' FROM table_reference {
+        $$=new DELETE_NODE;
+
+        $$->del_tbl_list=*$4;
+        free($4);
+
+        //std::cout<<$$->del_tbl_list[0]<<std::endl;
+
+        $$->star_flag=1;
+    }
+    ;
 
 /* statements: insert statement */
 stmt: insert_stmt { emit("STMT"); }
@@ -279,7 +315,9 @@ expr: NAME          {std::string all_s($1);$$=new_name(all_s);
     //std::cout<<$$->name<<std::endl;
     }
    | STRING        {std::string all_s($1);$$=new_name(all_s);}
-   | INTNUM        {$$=new_int($1);std::cout<<all_s<<std::endl;std::cout<<$$->int_num<<std::endl;}
+   | INTNUM        {$$=new_int($1);
+    //std::cout<<$$->int_num<<std::endl;
+    }
    | APPROXNUM     {$$=new_float($1);}
    ;
 
