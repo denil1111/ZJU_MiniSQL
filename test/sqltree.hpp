@@ -91,7 +91,8 @@ struct node{
 
     //create table
     std::string create_tbl_name;
-
+    std::vector<node *> attr_list;
+    std::vector<node *> sp_list;
 
     //attr
     std::string attr_name;
@@ -103,92 +104,151 @@ struct node{
     int key_type;
     std::vector<std::string> key_attr;
 
+    ~node();
+
 };
 
-struct INT_NODE:public node{
-    INT_NODE(){kind=N_INT;}
+struct INT_NODE:public node
+{
+    INT_NODE(int a)
+    {
+        kind=N_INT;
+        this->int_num=a;
+    }
 };
 
-struct NAME_NODE:public node{
-    NAME_NODE(){kind=N_NAME;}
+struct NAME_NODE:public node
+{
+    NAME_NODE(std::string s)
+    {
+        kind=N_NAME;
+        this->name=s;
+    }
 };
 
-struct STRING_NODE:public node{
-    STRING_NODE(){kind=N_STRING;}
+struct STRING_NODE:public node
+{
+    STRING_NODE(std::string s)
+    {
+        kind=N_STRING;
+        this->s=s;
+    }
 };
 
-struct FLOAT_NODE:public node{
-    FLOAT_NODE(){kind=N_FLOAT;}
+struct FLOAT_NODE:public node
+{
+    FLOAT_NODE(float a)
+    {
+        kind=N_FLOAT;
+        this->float_num=a;
+    }
 };
 
 /* query node */
-struct SELECT_NODE:public node{
-    SELECT_NODE(){kind=N_SELECT;}
+struct SELECT_NODE:public node
+{
+    SELECT_NODE()
+    {
+        kind=N_SELECT;
+    }
 };
 
 /* delete node */
-struct DELETE_NODE:public node{
-    DELETE_NODE(){kind=N_DELETE;}
+struct DELETE_NODE:public node
+{
+    DELETE_NODE()
+    {
+        kind=N_DELETE;
+    }
 };
 
-struct INSERT_NODE:public node{
-    INSERT_NODE(){kind=N_INSERT;}
+struct INSERT_NODE:public node
+{
+    INSERT_NODE()
+    {
+        kind=N_INSERT;
+    }
 };
 
-struct CREATE_DATABASE_NODE:public node{
-    CREATE_DATABASE_NODE(){kind=N_CREATE_DATABASE;}
+struct CREATE_DATABASE_NODE:public node
+{
+    CREATE_DATABASE_NODE()
+    {
+        kind=N_CREATE_DATABASE;
+    }
 };
 
-struct DROP_DATABASE_NODE:public node{
-    DROP_DATABASE_NODE(){kind=N_DROP_DATABASE;}
+struct DROP_DATABASE_NODE:public node
+{
+    DROP_DATABASE_NODE()
+    {
+        kind=N_DROP_DATABASE;
+    }
 };
 
-struct DROP_TABLE_NODE:public node{
-    DROP_TABLE_NODE(){kind=N_DROP_TABLE;}
+struct DROP_TABLE_NODE:public node
+{
+    DROP_TABLE_NODE()
+    {
+        kind=N_DROP_TABLE;
+    }
 };
 
 struct DROP_INDEX_NODE:public node{
-    DROP_INDEX_NODE(){kind=N_DROP_INDEX;}
+    DROP_INDEX_NODE()
+    {
+        kind=N_DROP_INDEX;
+    }
 };
 
 struct CREATE_INDEX_NODE:public node{
-    CREATE_INDEX_NODE(){kind=N_CREATE_INDEX;}
+    CREATE_INDEX_NODE()
+    {
+        kind=N_CREATE_INDEX;
+    }
 };
 struct ATTR_NODE:public node{
-    ATTR_NODE(){kind=N_ATTR;};
+    ATTR_NODE()
+    {
+        kind=N_ATTR;
+    }
 };
 
 struct SPECIAL_ATTR_NODE:public node{
-    SPECIAL_ATTR_NODE(){kind=N_SPECIAL_ATTR;};
+    SPECIAL_ATTR_NODE()
+    {
+        kind=N_SPECIAL_ATTR;
+    }
 };
 
 struct CREATE_TABLE_NODE:public node{
-    std::vector<ATTR_NODE> attr_list;
-    std::vector<SPECIAL_ATTR_NODE> sp_list;
-    CREATE_TABLE_NODE(){kind=N_CREATE_TABLE;}
+    CREATE_TABLE_NODE()
+    {
+        kind=N_CREATE_TABLE;
+
+    }
 };
 
 
 
 struct FORMULA_NODE:public node{
-    FORMULA_NODE(){kind=N_FORMULA;}
+    FORMULA_NODE(int cmp, node *l, node *r)
+    {
+        kind=N_FORMULA;
+        this->cmp=cmp;
+        this->l = l;
+        this->r = r;
+    }
 };
 
 
-
-FORMULA_NODE *
-new_formula(int cmp, node *l, node *r);
-
-INT_NODE*
-new_int(int a);
-
-NAME_NODE *
-new_name(std::string s);
-
-STRING_NODE *
-new_string(std::string s);
-
-FLOAT_NODE *
-new_float(float a);
+class Interpreter
+{  
+private:
+    node * plan_tree;
+public:
+    Interpreter(){}
+    void run_parser();
+};
 
 #endif

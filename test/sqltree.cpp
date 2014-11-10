@@ -3,52 +3,34 @@
 #include <iostream>
 #include <stdlib.h>
 #include "sqltree.hpp"
+#include "sql.hpp"
 // using namespace std;
-
-
-FORMULA_NODE *
-new_formula(int cmp, node *l, node *r)
+node::~node()
 {
-    FORMULA_NODE *n = new FORMULA_NODE;
-    n->cmp=cmp;
-    n->l = l;
-    n->r = r;
-    return n;
+    for (int i=0;i<attr_list.size();i++){
+            delete attr_list[i];
+        }
+        for (int i=0;i<sp_list.size();i++){
+            delete sp_list[i];
+        }
+        delete select_where_clause;
+        delete l;
+        delete r;
 }
-
-INT_NODE*
-new_int(int a)
+void Interpreter::run_parser()
 {
-    INT_NODE * n = new INT_NODE;
-    n->int_num=a;
-    return n;
+    // if(!yyparse())
+    //     printf("SQL parse worked\n");
+    // else
+    //     printf("SQL parse failed\n");
+    node *yyy_parse();
+    plan_tree=yyy_parse();
 }
+int main(){
+    Interpreter intp;
+    intp.run_parser();
 
-NAME_NODE *
-new_name(std::string s)
-{
-    NAME_NODE * n = new NAME_NODE;
-    n->name=s;
-    return n;
 }
-
-STRING_NODE *
-new_string(std::string s)
-{
-    STRING_NODE * n = new STRING_NODE;
-    n->s=s;
-    return n;
-}
-
-FLOAT_NODE *
-new_float(float a)
-{
-    FLOAT_NODE * n = new FLOAT_NODE;
-    n->float_num=a;
-    return n;
-}
-
-
 // int main(){
 //     string a="a";
 //     string b="b";

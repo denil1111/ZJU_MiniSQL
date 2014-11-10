@@ -1,13 +1,3 @@
-/* Companion source code for "flex & bison", published by O'Reilly
- * Media, ISBN 978-0-596-15597-1
- * Copyright (c) 2009, Taughannock Networks. All rights reserved.
- * See the README file for license conditions and contact info.
- * $Header: /home/johnl/flnb/code/sql/RCS/pmysql.y,v 2.1 2009/11/08 02:53:39 johnl Exp $
- */
-/*
- * Parser for mysql subset
- */
-
 %{
 #include <stdlib.h>
 #include <stdarg.h>
@@ -19,6 +9,7 @@
 #include <sstream>
 #include "sqltree.hpp"
 
+node * root_stmt;
 
 std::stringstream ss;
 std::string all_s;
@@ -39,24 +30,12 @@ void emit(char *s, ...);
 
   std::string * str;
 
-  CREATE_TABLE_NODE * create_tbl_p;
-  SPECIAL_ATTR_NODE * sp;
-  ATTR_NODE * attr_p;
-
   std::vector<std::string> *string_list;
   std::vector< std::vector<std::string> > *string_vec;
   node* node_p;
 
-  std::vector<ATTR_NODE> *attr_node_list;
-  std::vector<SPECIAL_ATTR_NODE> *sp_node_list;
+  std::vector<node*> *node_list;
 
- 
-  //INT_NODE * int_node_p;
-  //FLOAT_NODE * float_node_p;
-  //NAME_NODE * name_node_p;
-  //STRING_NODE * str_node_p;
-  //FORMULA_NODE * formula_node_p;
-  //vector <node> name_list;  
 }
   
   /* names and literal values */
@@ -127,33 +106,56 @@ void emit(char *s, ...);
 %type <node_p> drop_db_stmt 
 %type <node_p> drop_index_stmt
 
-%type <create_tbl_p> create_table_stmt
-%type <sp_node_list> create_sp_list
-%type <sp> create_sp
+%type <node_p> create_table_stmt
+%type <node_list> create_sp_list
+%type <node_p> create_sp
 %type <string_list> column_list
 
 
-%type <attr_p> create_definition
+%type <node_p> create_definition
 %type <intval> opt_length
 %type <intval> data_type
 %type <boolval> column_atts 
-%type <attr_node_list> create_col_list 
+%type <node_list> create_col_list 
 
-
+%type <node_p> stmt
+%type <node_list> stmt_list
 
 %start stmt_list
 
 %%
-stmt_list: stmt ';'
-  | stmt_list stmt ';'
-  ;
-   
-/* statements: select statement */
-stmt: select_stmt { 
-        emit("STMT"); 
-      }
-   ;
 
+stmt_list: stmt ';'{$$=new std::vector<node *>;$$->push_back($1);
+        //std::cout<<(*$$)[0]->kind<<std::endl;
+        root_stmt=(*$$)[0];
+    }
+  | stmt_list stmt ';'{$$->push_back($2);}
+  ;
+
+//statement
+stmt: select_stmt {
+        $$=new SELECT_NODE;*$$=*$1;
+        //std::cout<<"in select stmt"<<std::endl;
+        //std::cout<<$$->select_list[0]<<std::endl;
+    }
+   | delete_stmt {$$=new DELETE_NODE;*$$=*$1;}
+   | insert_stmt {$$=new INSERT_NODE;*$$=*$1;}
+   | create_database_stmt {$$=new CREATE_DATABASE_NODE;*$$=*$1;}
+   | create_table_stmt {
+        $$=new CREATE_TABLE_NODE;
+        *$$=*$1;
+        std::cout<<$$->attr_list[0]->attr_name<<std::endl;
+        std::cout<<$$->attr_list[0]->char_length<<std::endl;
+        std::cout<<$$->sp_list[0]->key_type<<std::endl;
+        std::cout<<$$->sp_list[0]->key_attr[0]<<std::endl;
+   }
+   | create_index_stmt {$$=new CREATE_INDEX_NODE;*$$=*$1;}
+   | drop_table_stmt {$$=new DROP_TABLE_NODE;*$$=*$1;}
+   | drop_db_stmt {$$=new DROP_DATABASE_NODE;*$$=*$1;}
+   | drop_index_stmt {$$=new DROP_INDEX_NODE;*$$=*$1;}
+   ;
+   
+//select
 select_stmt: SELECT select_expr_list
      FROM table_reference
      opt_where {
@@ -180,9 +182,7 @@ select_stmt: SELECT select_expr_list
         $$->select_where_clause=NULL;
       }
       else{
-        $$->select_where_clause=new FORMULA_NODE;//must new 
-        *($$->select_where_clause)=*$5;
-        free($5);
+        $$->select_where_clause=$5;
         //std::cout<<$$->select_where_clause->cmp<<std::endl;
         //std::cout<<$$->select_where_clause->l->name<<std::endl;
       } 
@@ -207,16 +207,14 @@ select_stmt: SELECT select_expr_list
         }
         else
         {
-            $$->select_where_clause=new FORMULA_NODE;//must new 
-            *($$->select_where_clause)=*$7;
-            free($7);
+            $$->select_where_clause=$7;
         }
 
      }
     ;
 
 opt_where: {$$=NULL;} /* nil */ 
-   | WHERE expr {$$=new FORMULA_NODE;*$$=*$2;free($2);
+   | WHERE expr {$$=$2;
     //std::cout<<$$->cmp<<std::endl;
     }
     ;
@@ -233,10 +231,7 @@ table_reference: NAME {$$=new std::vector<std::string>;
   ;
 
 
-/* statements: delete statement */
-stmt: delete_stmt { emit("STMT"); }
-   ;
-
+//delete
 delete_stmt: DELETE FROM table_reference opt_where
     {
       $$=new DELETE_NODE;
@@ -271,10 +266,7 @@ delete_stmt: DELETE FROM table_reference opt_where
     }
     ;
 
-/* statements: insert statement */
-stmt: insert_stmt {}
-   ;
-
+//insert statement
 insert_stmt: INSERT INTO table_reference VALUES insert_vals_list
     {
         $$=new INSERT_NODE;
@@ -316,10 +308,7 @@ term: NAME          {$$=new std::string($1);}
     }
    ;
 
-/** create database **/
-stmt: create_database_stmt { emit("STMT"); }
-   ;
-
+//create database
 create_database_stmt: 
      CREATE DATABASE NAME {
         $$=new CREATE_DATABASE_NODE;
@@ -329,36 +318,32 @@ create_database_stmt:
     }
    ;
 
-/** create table **/
-stmt: create_table_stmt { emit("STMT"); }
-   ;
-
+//create table
 create_table_stmt: CREATE TABLE NAME
    '(' create_col_list ','create_sp_list ')'  
     {
         $$=new CREATE_TABLE_NODE; 
         $$->create_tbl_name=std::string($3);
         $$->attr_list=*$5;
-        std::cout<<$$->attr_list[0].attr_name<<std::endl;
-        std::cout<<$$->attr_list[0].char_length<<std::endl;
+        std::cout<<$$->attr_list[0]->attr_name<<std::endl;
+        std::cout<<$$->attr_list[0]->char_length<<std::endl;
 
         $$->sp_list=*$7;
-        std::cout<<$$->sp_list[0].key_type<<std::endl;
-        std::cout<<$$->sp_list[0].key_attr[0]<<std::endl;
+        std::cout<<$$->sp_list[0]->key_type<<std::endl;
+        std::cout<<$$->sp_list[0]->key_attr[0]<<std::endl;
 
         free($7);
         free($5);
     }
    ;
 
-create_sp_list: {$$=new std::vector<SPECIAL_ATTR_NODE>;}
+create_sp_list: {$$=new std::vector<node *>;}
     | create_sp 
         {
-            $$=new std::vector<SPECIAL_ATTR_NODE>;
-            $$->push_back(*$1);
-            free($1);
+            $$=new std::vector<node *>;
+            $$->push_back($1);
         }
-    | create_sp_list ',' create_sp {$$->push_back(*$3);free($3);}  
+    | create_sp_list ',' create_sp {$$->push_back($3);}  
     ; 
 
 create_sp: PRIMARY KEY '(' column_list ')'    
@@ -391,11 +376,10 @@ column_list: NAME {$$=new std::vector<std::string>;$$->push_back($1); }
 
 create_col_list: create_definition 
     {
-        $$=new std::vector<ATTR_NODE>;
-        $$->push_back(*$1);
-        free($1);
+        $$=new std::vector<node *>;
+        $$->push_back($1);
     }
-    | create_col_list ',' create_definition {$$->push_back(*$3);free($3);}
+    | create_col_list ',' create_definition {$$->push_back($3);}
     ;
 
 create_definition: NAME data_type opt_length column_atts
@@ -424,9 +408,6 @@ data_type: INT { $$ = 1; }
 
 
 //create index
-stmt: create_index_stmt { emit("STMT"); }
-   ;
-
 create_index_stmt:CREATE INDEX NAME ON NAME '(' NAME ')' {
         $$=new CREATE_INDEX_NODE;
         $$->create_index_name=std::string($3);
@@ -439,10 +420,16 @@ create_index_stmt:CREATE INDEX NAME ON NAME '(' NAME ')' {
     }
     ; 
 
-//drop table
-stmt: drop_table_stmt { emit("STMT"); }
-   ;
+//drop db
+drop_db_stmt:DROP DATABASE NAME {
+        $$=new DROP_DATABASE_NODE;
+        $$->drop_db_name=std::string($3);
+        //std::cout<<$$->drop_db_name<<std::endl;
+        free($3);
+    }
+    ; 
 
+//drop table
 drop_table_stmt:DROP TABLE NAME {
         $$=new DROP_TABLE_NODE;
         $$->drop_tbl_name=std::string($3);
@@ -451,21 +438,7 @@ drop_table_stmt:DROP TABLE NAME {
     }
     ;  
 
-//drop db
-stmt: drop_db_stmt { emit("STMT"); }
-   ;
-drop_db_stmt:DROP DATABASE NAME {
-        $$=new DROP_TABLE_NODE;
-        $$->drop_db_name=std::string($3);
-        //std::cout<<$$->drop_db_name<<std::endl;
-        free($3);
-    }
-    ;  
-
 //drop index
-stmt: drop_index_stmt { emit("STMT"); }
-   ;
-
 drop_index_stmt:DROP INDEX NAME ON NAME {
         $$=new DROP_INDEX_NODE;
         $$->drop_index_name=std::string($3);
@@ -474,36 +447,34 @@ drop_index_stmt:DROP INDEX NAME ON NAME {
     }
     ; 
 
-
-
-/**** expressions ****/
-expr: NAME          {std::string all_s($1);$$=new_name(all_s);
+//expressions
+expr: NAME          {std::string all_s($1);$$=new NAME_NODE(all_s);
     //std::cout<<$$->name<<std::endl;
     }
-   | STRING        {std::string all_s($1);$$=new_name(all_s);}
-   | INTNUM        {$$=new_int($1);
+   | STRING        {std::string all_s($1);$$=new NAME_NODE(all_s);}
+   | INTNUM        {$$=new INT_NODE($1);
     //std::cout<<$$->int_num<<std::endl;
     }
-   | APPROXNUM     {$$=new_float($1);}
+   | APPROXNUM     {$$=new FLOAT_NODE($1);}
    ;
 
-expr: expr '+' expr {$$=new_formula(7,$1,$3);}
-   | expr '-' expr {$$=new_formula(8,$1,$3);}
-   | expr '*' expr {$$=new_formula(9,$1,$3);}
-   | expr '/' expr {$$=new_formula(10,$1,$3);}
-   | expr '%' expr {$$=new_formula(11,$1,$3);}
-   | expr MOD expr {$$=new_formula(11,$1,$3);}
-   | '-' expr %prec UMINUS {$$=new_formula(12,$2,NULL);}
-   | expr ANDOP expr {$$=new_formula(13,$1,$3);}
-   | expr OR expr {$$=new_formula(14,$1,$3);}
+expr: expr '+' expr {$$=new FORMULA_NODE(7,$1,$3);}
+   | expr '-' expr {$$=new FORMULA_NODE(8,$1,$3);}
+   | expr '*' expr {$$=new FORMULA_NODE(9,$1,$3);}
+   | expr '/' expr {$$=new FORMULA_NODE(10,$1,$3);}
+   | expr '%' expr {$$=new FORMULA_NODE(11,$1,$3);}
+   | expr MOD expr {$$=new FORMULA_NODE(11,$1,$3);}
+   | '-' expr %prec UMINUS {$$=new FORMULA_NODE(12,$2,NULL);}
+   | expr ANDOP expr {$$=new FORMULA_NODE(13,$1,$3);}
+   | expr OR expr {$$=new FORMULA_NODE(14,$1,$3);}
    | expr COMPARISON expr {
     //$$=new FORMULA_NODE;//do not must
-    $$=new_formula($2,$1,$3);
+    $$=new FORMULA_NODE($2,$1,$3);
     //std::cout<<$$->cmp<<std::endl;
     //std::cout<<$$->l->name<<std::endl;
   }
-   | NOT expr {$$=new_formula(15,$2,NULL);}
-   | '!' expr {$$=new_formula(15,$2,NULL);}
+   | NOT expr {$$=new FORMULA_NODE(15,$2,NULL);}
+   | '!' expr {$$=new FORMULA_NODE(15,$2,NULL);}
    ;  
 
 %%
@@ -532,22 +503,15 @@ yyerror(char *s, ...)
   vfprintf(stderr, s, ap);
   fprintf(stderr, "\n");
 }
-int
-main(int ac, char **av)
-{
-  extern FILE *yyin;
- // extern int yydebug;
- // if(ac > 1 && !strcmp(av[1], "-d")) {
- //   yydebug = 1; ac--; av++;
- // }
 
-  if(ac > 1 && (yyin = fopen(av[1], "r")) == NULL) {
-    perror(av[1]);
-    exit(1);
-  }
+
+node *
+yyy_parse()
+{
+
   if(!yyparse())
     printf("SQL parse worked\n");
   else
     printf("SQL parse failed\n");
-  return 0;
-} /* main */
+  return root_stmt;
+}  

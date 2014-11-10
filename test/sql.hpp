@@ -114,7 +114,7 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 32 "sql.y"
+#line 23 "sql.y"
 {
  
   int intval;
@@ -125,27 +125,15 @@ typedef union YYSTYPE
 
   std::string * str;
 
-  CREATE_TABLE_NODE * create_tbl_p;
-  SPECIAL_ATTR_NODE * sp;
-  ATTR_NODE * attr_p;
-
   std::vector<std::string> *string_list;
   std::vector< std::vector<std::string> > *string_vec;
   node* node_p;
 
-  std::vector<ATTR_NODE> *attr_node_list;
-  std::vector<SPECIAL_ATTR_NODE> *sp_node_list;
+  std::vector<node*> *node_list;
 
- 
-  //INT_NODE * int_node_p;
-  //FLOAT_NODE * float_node_p;
-  //NAME_NODE * name_node_p;
-  //STRING_NODE * str_node_p;
-  //FORMULA_NODE * formula_node_p;
-  //vector <node> name_list;  
 }
 /* Line 1529 of yacc.c.  */
-#line 149 "sql.hpp"
+#line 137 "sql.hpp"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
