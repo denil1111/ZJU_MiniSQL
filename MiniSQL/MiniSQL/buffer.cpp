@@ -80,3 +80,13 @@ Buffer::~Buffer()
         disk.write_data(buffer_list[i].address, &buffer_list[i].data);
     }
 }
+void Buffer::remove_file(Address address)
+{
+    for (int i=0;i<buffer_list.size();i++)
+    {
+        if (buffer_list[i].address.database_name==address.database_name &&
+            buffer_list[i].address.file_name==address.file_name)
+        buffer_list.erase(buffer_list.begin()+i);
+    }
+    disk.remove_file(address);
+}

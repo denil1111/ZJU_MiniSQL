@@ -8,7 +8,7 @@
 
 #ifndef __MiniSQL__buffer__
 #define __MiniSQL__buffer__
-//#define MAX_BUFFER_SIZE 1024*16
+//#define MAX_BUFFER_SIZE (1024*16)
 #define MAX_BUFFER_SIZE 3 //for test
 #include <stdio.h>
 #include <vector>
@@ -31,6 +31,7 @@ public:
     }
     void read_data(Address,Block*);
     void write_data(Address,const Block*);
+    void remove_file(Address);
     ~Buffer();
     
 };

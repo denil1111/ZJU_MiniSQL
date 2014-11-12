@@ -15,11 +15,24 @@
 #include "buffer.h"
 #define ADDRESS_SIZE 4
 #define MAX_RECORD_SIZE 256
+union Address_byte
+{
+    unsigned int address;
+    char byte[ADDRESS_SIZE];
+};
+enum type_enum
+{
+    INT,
+    FLOAT,
+    STRING
+};
 struct Attribute
 {
-    int type;
+    std::string name;
+    type_enum type;
     int size;
     bool changed;
+    
 };
 struct Table_info
 {
@@ -31,6 +44,13 @@ struct Table_info
 struct Tuple_info
 {
     std::vector<std::string> info;
+    Tuple_info()
+    {
+    }
+    Tuple_info(int size)
+    {
+        info.resize(size);
+    }
 };
 struct Tuple_data
 {
@@ -49,17 +69,28 @@ struct Tuple_data
 class Record
 {
 private:
-    Buffer buffer;
-    
+    Storage storage;
+    void get_block_data(Block,int,int,char*);
+    void fill_block_data(Block*,int,int,char*);
 //    int cal_size(Table_info);
+    
 public:
+    static Buffer *buffer;
+    Address int_to_address(Table_info,unsigned int);
+    unsigned int address_to_int(Address);
     void pack(Table_info, Tuple_info, Tuple_data*);
     void unpack(Table_info, Tuple_info*, const Tuple_data*);
-    Record()
+    Record(Buffer *buffer)
     {
+        this->buffer=buffer;
     }
-    void insert(Table_info, Tuple_info);
-    void remove(Table_info, Tuple_info);
+    void insert_tuple(Table_info, Tuple_info);
+    void create_table(Table_info);
+    void delete_tuple(Table_info,Address);
+    void delete_all_tuple(Table_info);
+    void drop_table(Table_info);
+    void get_first_tuple(Table_info,Tuple_info*,Address*);
+    void get_tuple(Table_info,Address,Tuple_info*,Address*);
     
 };
 

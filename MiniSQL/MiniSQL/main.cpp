@@ -11,6 +11,7 @@
 #include "error.h"
 #include "buffer.h"
 #include "record.h"
+
 void storage_test()
 {
     Block* data=new Block();
@@ -114,26 +115,29 @@ void buffer_test()
 }
 int main(int argc, const char * argv[])
 {
-    Record record;
+    Buffer buffer;
+    Record::buffer=&buffer;
+    Record record(&buffer);
     Table_info table;
-    table.table_name="friend";
+    table.table_name="friendg";
     table.database="zyh";
     Attribute attribute;
     Tuple_data tuple_data(90);
     Tuple_info tuple;
-    attribute.type=1;
+    table.tuple_size=21;
+    attribute.type=INT;
     attribute.size=4;
     table.attribute_list.push_back(attribute);
-    attribute.type=3;
+    attribute.type=STRING;
     attribute.size=6;
     table.attribute_list.push_back(attribute);
-    attribute.type=3;
+    attribute.type=STRING;
     attribute.size=4;
     table.attribute_list.push_back(attribute);
-    attribute.type=3;
+    attribute.type=STRING;
     attribute.size=3;
     table.attribute_list.push_back(attribute);
-    attribute.type=2;
+    attribute.type=FLOAT;
     attribute.size=4;
     table.attribute_list.push_back(attribute);
     tuple.info.push_back("44");
@@ -159,5 +163,43 @@ int main(int argc, const char * argv[])
         std::cout<<tuple_unpack.info[i]<<std::endl;
     for (int i=0;i<30;i++)
         printf("%X  ",tuple_data.data[i]);
+    printf("\n");
+    Storage storage;
+    record.create_table(table);
+    record.insert_tuple(table, tuple_unpack);
+    record.insert_tuple(table, tuple_unpack);
+    record.insert_tuple(table, tuple_unpack);
+    Address del_address;
+    del_address=record.int_to_address(table, 12);
+    record.delete_tuple(table, del_address);
+    del_address=record.int_to_address(table, 41);
+    record.delete_tuple(table, del_address);
+    record.insert_tuple(table, tuple_unpack);
+    Tuple_info new_tuple;
+    new_tuple.info.push_back("55");
+    new_tuple.info.push_back("qqqq");
+    new_tuple.info.push_back("ac");
+    new_tuple.info.push_back("ac");
+    new_tuple.info.push_back("32.2");
+    record.insert_tuple(table, new_tuple);
+    Tuple_info get_tuple(5);
+    Address next_address;
+    record.get_first_tuple(table, &get_tuple, &next_address);
+    while (!(next_address.block_offset==0 && next_address.file_offset==0))
+    {
+        for (int i=0;i<5;i++)
+        {
+            std::cout<<get_tuple.info[i]<<std::endl;
+        }
+        std::cout<<"next"<<std::endl;
+        Address address=next_address;
+        record.get_tuple(table, address,&get_tuple, &next_address);
+    }
+    for (int i=0;i<5;i++)
+    {
+        std::cout<<get_tuple.info[i]<<std::endl;
+    }
+
+//    record.drop_table(table);
     return 0;
 }
