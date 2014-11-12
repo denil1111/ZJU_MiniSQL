@@ -127,9 +127,9 @@ typedef union YYSTYPE
 
   std::vector<std::string> *string_list;
   std::vector< std::vector<std::string> > *string_vec;
-  node* node_p;
+  Parse_Node* node_p;
 
-  std::vector<node*> *node_list;
+  std::vector<Parse_Node*> *node_list;
 
 }
 /* Line 1529 of yacc.c.  */

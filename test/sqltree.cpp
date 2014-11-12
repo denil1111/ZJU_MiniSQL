@@ -5,7 +5,7 @@
 #include "sqltree.hpp"
 #include "sql.hpp"
 // using namespace std;
-node::~node()
+Parse_Node::~Parse_Node()
 {
     for (int i=0;i<attr_list.size();i++){
             delete attr_list[i];
@@ -19,32 +19,14 @@ node::~node()
 }
 void Interpreter::run_parser()
 {
-    // if(!yyparse())
-    //     printf("SQL parse worked\n");
-    // else
-    //     printf("SQL parse failed\n");
-    node *yyy_parse();
+    Parse_Node *yyy_parse();
     plan_tree=yyy_parse();
+    std::cout<<"in run_parser"<<std::endl;
+    std::cout<<plan_tree->kind<<std::endl;
+    std::cout<<plan_tree->attr_list[0]->attr_name<<std::endl;
 }
+
 int main(){
     Interpreter intp;
     intp.run_parser();
-
 }
-// int main(){
-//     string a="a";
-//     string b="b";
-//     string t1="t1";
-//     string t2="t2";
-    
-//     NAME_NODE * p=new_name(a);
-    
-//     vector <NAME_NODE> test;
-    
-//     cout<<test.size()<<endl;
-    
-//     test.push_back(*p);
-    
-//     cout<<test.front().name<<endl;
-    
-// }

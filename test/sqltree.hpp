@@ -36,7 +36,7 @@ enum nodekind{
     N_NULL
 };
 
-struct node{
+struct Parse_Node{
     nodekind kind;
 
     //int
@@ -53,19 +53,19 @@ struct node{
 
     //formula
     int cmp;
-    struct node * l;
-    struct node * r;
+    struct Parse_Node * l;
+    struct Parse_Node * r;
 
     //delete
     std::vector <std::string> del_tbl_list;
     bool star_flag=false;
-    node * del_where_clause;
+    Parse_Node * del_where_clause;
 
     //select
     std::vector <std::string> select_list;
     std::vector <std::string> select_tbl_list;
-    node * nested_tbl;
-    node * select_where_clause;
+    Parse_Node * nested_tbl;
+    Parse_Node * select_where_clause;
 
     //insert
     std::vector <std::vector<std::string> > insert_value_list;
@@ -91,8 +91,8 @@ struct node{
 
     //create table
     std::string create_tbl_name;
-    std::vector<node *> attr_list;
-    std::vector<node *> sp_list;
+    std::vector<Parse_Node *> attr_list;
+    std::vector<Parse_Node *> sp_list;
 
     //attr
     std::string attr_name;
@@ -104,11 +104,11 @@ struct node{
     int key_type;
     std::vector<std::string> key_attr;
 
-    ~node();
+    ~Parse_Node();
 
 };
 
-struct INT_NODE:public node
+struct INT_NODE:public Parse_Node
 {
     INT_NODE(int a)
     {
@@ -117,7 +117,7 @@ struct INT_NODE:public node
     }
 };
 
-struct NAME_NODE:public node
+struct NAME_NODE:public Parse_Node
 {
     NAME_NODE(std::string s)
     {
@@ -126,7 +126,7 @@ struct NAME_NODE:public node
     }
 };
 
-struct STRING_NODE:public node
+struct STRING_NODE:public Parse_Node
 {
     STRING_NODE(std::string s)
     {
@@ -135,7 +135,7 @@ struct STRING_NODE:public node
     }
 };
 
-struct FLOAT_NODE:public node
+struct FLOAT_NODE:public Parse_Node
 {
     FLOAT_NODE(float a)
     {
@@ -145,7 +145,7 @@ struct FLOAT_NODE:public node
 };
 
 /* query node */
-struct SELECT_NODE:public node
+struct SELECT_NODE:public Parse_Node
 {
     SELECT_NODE()
     {
@@ -154,7 +154,7 @@ struct SELECT_NODE:public node
 };
 
 /* delete node */
-struct DELETE_NODE:public node
+struct DELETE_NODE:public Parse_Node
 {
     DELETE_NODE()
     {
@@ -162,7 +162,7 @@ struct DELETE_NODE:public node
     }
 };
 
-struct INSERT_NODE:public node
+struct INSERT_NODE:public Parse_Node
 {
     INSERT_NODE()
     {
@@ -170,7 +170,7 @@ struct INSERT_NODE:public node
     }
 };
 
-struct CREATE_DATABASE_NODE:public node
+struct CREATE_DATABASE_NODE:public Parse_Node
 {
     CREATE_DATABASE_NODE()
     {
@@ -178,7 +178,7 @@ struct CREATE_DATABASE_NODE:public node
     }
 };
 
-struct DROP_DATABASE_NODE:public node
+struct DROP_DATABASE_NODE:public Parse_Node
 {
     DROP_DATABASE_NODE()
     {
@@ -186,7 +186,7 @@ struct DROP_DATABASE_NODE:public node
     }
 };
 
-struct DROP_TABLE_NODE:public node
+struct DROP_TABLE_NODE:public Parse_Node
 {
     DROP_TABLE_NODE()
     {
@@ -194,34 +194,34 @@ struct DROP_TABLE_NODE:public node
     }
 };
 
-struct DROP_INDEX_NODE:public node{
+struct DROP_INDEX_NODE:public Parse_Node{
     DROP_INDEX_NODE()
     {
         kind=N_DROP_INDEX;
     }
 };
 
-struct CREATE_INDEX_NODE:public node{
+struct CREATE_INDEX_NODE:public Parse_Node{
     CREATE_INDEX_NODE()
     {
         kind=N_CREATE_INDEX;
     }
 };
-struct ATTR_NODE:public node{
+struct ATTR_NODE:public Parse_Node{
     ATTR_NODE()
     {
         kind=N_ATTR;
     }
 };
 
-struct SPECIAL_ATTR_NODE:public node{
+struct SPECIAL_ATTR_NODE:public Parse_Node{
     SPECIAL_ATTR_NODE()
     {
         kind=N_SPECIAL_ATTR;
     }
 };
 
-struct CREATE_TABLE_NODE:public node{
+struct CREATE_TABLE_NODE:public Parse_Node{
     CREATE_TABLE_NODE()
     {
         kind=N_CREATE_TABLE;
@@ -231,8 +231,8 @@ struct CREATE_TABLE_NODE:public node{
 
 
 
-struct FORMULA_NODE:public node{
-    FORMULA_NODE(int cmp, node *l, node *r)
+struct FORMULA_NODE:public Parse_Node{
+    FORMULA_NODE(int cmp, Parse_Node *l, Parse_Node *r)
     {
         kind=N_FORMULA;
         this->cmp=cmp;
@@ -245,7 +245,7 @@ struct FORMULA_NODE:public node{
 class Interpreter
 {  
 private:
-    node * plan_tree;
+    Parse_Node * plan_tree;
 public:
     Interpreter(){}
     void run_parser();

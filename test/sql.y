@@ -9,7 +9,7 @@
 #include <sstream>
 #include "sqltree.hpp"
 
-node * root_stmt;
+Parse_Node * root_stmt;
 
 std::stringstream ss;
 std::string all_s;
@@ -32,9 +32,9 @@ void emit(char *s, ...);
 
   std::vector<std::string> *string_list;
   std::vector< std::vector<std::string> > *string_vec;
-  node* node_p;
+  Parse_Node* node_p;
 
-  std::vector<node*> *node_list;
+  std::vector<Parse_Node*> *node_list;
 
 }
   
@@ -125,12 +125,8 @@ void emit(char *s, ...);
 
 %%
 
-stmt_list: stmt ';'{$$=new std::vector<node *>;$$->push_back($1);
-        //std::cout<<(*$$)[0]->kind<<std::endl;
-        root_stmt=(*$$)[0];
-    }
-  | stmt_list stmt ';'{$$->push_back($2);}
-  ;
+stmt_list: stmt ';' {root_stmt=$1;YYACCEPT;}
+    ;
 
 //statement
 stmt: select_stmt {
@@ -337,10 +333,10 @@ create_table_stmt: CREATE TABLE NAME
     }
    ;
 
-create_sp_list: {$$=new std::vector<node *>;}
+create_sp_list: {$$=new std::vector<Parse_Node *>;}
     | create_sp 
         {
-            $$=new std::vector<node *>;
+            $$=new std::vector<Parse_Node *>;
             $$->push_back($1);
         }
     | create_sp_list ',' create_sp {$$->push_back($3);}  
@@ -376,7 +372,7 @@ column_list: NAME {$$=new std::vector<std::string>;$$->push_back($1); }
 
 create_col_list: create_definition 
     {
-        $$=new std::vector<node *>;
+        $$=new std::vector<Parse_Node *>;
         $$->push_back($1);
     }
     | create_col_list ',' create_definition {$$->push_back($3);}
@@ -505,10 +501,9 @@ yyerror(char *s, ...)
 }
 
 
-node *
+Parse_Node *
 yyy_parse()
 {
-
   if(!yyparse())
     printf("SQL parse worked\n");
   else
