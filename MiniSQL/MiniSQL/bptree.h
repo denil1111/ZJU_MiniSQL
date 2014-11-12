@@ -16,7 +16,6 @@
 class Key_type
 {
 public:
-    static Buffer* buffer;
     union
     {
         char* key_str;
@@ -24,10 +23,12 @@ public:
         float key_float;
         int key_int;
     }key;
-    Key_type(){};
-    virtual void assign(std::string data);
-    virtual bool compare(Key_type*);
-    virtual void get_byte(char* byte);
+    Key_type(){}
+    virtual ~Key_type(){}
+    virtual void assign(std::string data)=0;
+    virtual bool compare(Key_type*)=0;
+    virtual void get_byte(unsigned char* byte)=0;
+    virtual void read_byte(unsigned char* byte)=0;
 };
 class String_key: public Key_type
 {
@@ -35,6 +36,7 @@ public:
     String_key(int size)
     {
         key.key_str=new char[size];
+        key.size=size;
     }
     void assign(std::string data);
     bool compare(Key_type* another)
@@ -45,38 +47,49 @@ public:
     {
         delete [] key.key_str;
     }
-    void get_byte(char* byte);
+    void get_byte(unsigned char* byte);
+    void read_byte(unsigned char* byte);
 };
 class Int_key: public Key_type
 {
 public:
-    Int_key(){}
+    Int_key()
+    {
+        key.size=4;
+    }
     void assign(std::string data);
     bool compare(Key_type* another)
     {
         return key.key_int>another->key.key_int;
     }
-    void get_byte(char* byte);
+    void get_byte(unsigned char* byte);
+    void read_byte(unsigned char* byte);
 
 };
 class Float_key: public Key_type
 {
 public:
-    Float_key(){}
+    Float_key()
+    {
+        key.size=4;
+    }
     void assign(std::string data);
     bool compare(Key_type* another)
     {
         return key.key_float>another->key.key_float;
     }
-    virtual void get_byte(char* byte);    
+    void get_byte(unsigned char* byte);
+    void read_byte(unsigned char* byte);
 };
 class Bptree_node
 {
 public:
+    static Buffer* buffer;
     int number;
     std::vector<Key_type*> key;
     bool leaf;
     Address *link;
+    int size;
     Bptree_node(int count, type_enum type, int size);
     void write_back(Address);
     void read_from(Address);
@@ -98,9 +111,8 @@ private:
     
 public:
     static Buffer* buffer;
-    Bptree(Storage disk)
+    Bptree()
     {
-        this->disk=disk;
     }
     void get_root(Table_info,Attribute attribute)
     {

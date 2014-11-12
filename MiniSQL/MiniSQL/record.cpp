@@ -11,6 +11,7 @@
 #include "error.h"
 #include <iostream>
 #include <sstream>
+Buffer* Record::buffer;
 void Record::pack(Table_info table,Tuple_info tuple,Tuple_data* tuple_data)
 {
     int j=0;
@@ -23,7 +24,7 @@ void Record::pack(Table_info table,Tuple_info tuple,Tuple_data* tuple_data)
             case INT:
                 union
                 {
-                    char byte[4];
+                    unsigned char byte[4];
                     int data;
                 }data_int;
                 ss>>data_int.data;
@@ -36,7 +37,7 @@ void Record::pack(Table_info table,Tuple_info tuple,Tuple_data* tuple_data)
             case FLOAT:
                 union
                 {
-                    char byte[4];
+                    unsigned char byte[4];
                     float data;
                 }data_float;
                 ss>>data_float.data;
@@ -248,14 +249,14 @@ void Record::create_table(Table_info table)
     }
     buffer->write_data(header_address,&first_block);
 }
-void Record::get_block_data(Block block,int seed,int size,char* data)
+void Record::get_block_data(Block block,int seed,int size,unsigned char* data)
 {
     for (int i=seed;i<size+seed;i++)
     {
         data[i-seed]=block[i];
     }
 }
-void Record::fill_block_data(Block* block,int seed,int size,char* data)
+void Record::fill_block_data(Block* block,int seed,int size,unsigned char* data)
 {
     for (int i=seed;i<size+seed;i++)
     {

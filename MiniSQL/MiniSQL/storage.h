@@ -16,10 +16,10 @@ struct Block
     unsigned char data[BLOCK_SIZE];
     Block()
     {
-        
+        memset(data,0,sizeof(data));
     }
-    void get_block_data(int seed,int size,char* data);
-    void fill_block_data(int seed,int size,char* data);
+    void get_block_data(int seed,int size,unsigned char* data);
+    void fill_block_data(int seed,int size,unsigned char* data);
     Block(unsigned char* data)
     {
         for (int i=0;i<BLOCK_SIZE;i++)

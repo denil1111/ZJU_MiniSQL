@@ -1,4 +1,13 @@
-/Users/lyt9304/Documents/minisql/ZJU_MiniSQL/MiniSQL/DerivedData/MiniSQL/Build/Intermediates/MiniSQL.build/Debug/MiniSQL.build/Objects-normal/x86_64/main.o
-/Users/lyt9304/Documents/minisql/ZJU_MiniSQL/MiniSQL/DerivedData/MiniSQL/Build/Intermediates/MiniSQL.build/Debug/MiniSQL.build/Objects-normal/x86_64/buffer.o
-/Users/lyt9304/Documents/minisql/ZJU_MiniSQL/MiniSQL/DerivedData/MiniSQL/Build/Intermediates/MiniSQL.build/Debug/MiniSQL.build/Objects-normal/x86_64/storage.o
-/Users/lyt9304/Documents/minisql/ZJU_MiniSQL/MiniSQL/DerivedData/MiniSQL/Build/Intermediates/MiniSQL.build/Debug/MiniSQL.build/Objects-normal/x86_64/error.o
+/Users/zyhc/code/miniSQL/MiniSQL/DerivedData/MiniSQL/Build/Intermediates/MiniSQL.build/Debug/MiniSQL.build/Objects-normal/x86_64/record.o
+/Users/zyhc/code/miniSQL/MiniSQL/DerivedData/MiniSQL/Build/Intermediates/MiniSQL.build/Debug/MiniSQL.build/Objects-normal/x86_64/tinyxml.o
+/Users/zyhc/code/miniSQL/MiniSQL/DerivedData/MiniSQL/Build/Intermediates/MiniSQL.build/Debug/MiniSQL.build/Objects-normal/x86_64/tinystr.o
+/Users/zyhc/code/miniSQL/MiniSQL/DerivedData/MiniSQL/Build/Intermediates/MiniSQL.build/Debug/MiniSQL.build/Objects-normal/x86_64/error.o
+/Users/zyhc/code/miniSQL/MiniSQL/DerivedData/MiniSQL/Build/Intermediates/MiniSQL.build/Debug/MiniSQL.build/Objects-normal/x86_64/main.o
+/Users/zyhc/code/miniSQL/MiniSQL/DerivedData/MiniSQL/Build/Intermediates/MiniSQL.build/Debug/MiniSQL.build/Objects-normal/x86_64/tinyxmlparser.o
+/Users/zyhc/code/miniSQL/MiniSQL/DerivedData/MiniSQL/Build/Intermediates/MiniSQL.build/Debug/MiniSQL.build/Objects-normal/x86_64/index.o
+/Users/zyhc/code/miniSQL/MiniSQL/DerivedData/MiniSQL/Build/Intermediates/MiniSQL.build/Debug/MiniSQL.build/Objects-normal/x86_64/catalog.o
+/Users/zyhc/code/miniSQL/MiniSQL/DerivedData/MiniSQL/Build/Intermediates/MiniSQL.build/Debug/MiniSQL.build/Objects-normal/x86_64/buffer.o
+/Users/zyhc/code/miniSQL/MiniSQL/DerivedData/MiniSQL/Build/Intermediates/MiniSQL.build/Debug/MiniSQL.build/Objects-normal/x86_64/api.o
+/Users/zyhc/code/miniSQL/MiniSQL/DerivedData/MiniSQL/Build/Intermediates/MiniSQL.build/Debug/MiniSQL.build/Objects-normal/x86_64/storage.o
+/Users/zyhc/code/miniSQL/MiniSQL/DerivedData/MiniSQL/Build/Intermediates/MiniSQL.build/Debug/MiniSQL.build/Objects-normal/x86_64/bptree.o
+/Users/zyhc/code/miniSQL/MiniSQL/DerivedData/MiniSQL/Build/Intermediates/MiniSQL.build/Debug/MiniSQL.build/Objects-normal/x86_64/tinyxmlerror.o

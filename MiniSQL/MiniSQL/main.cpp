@@ -11,7 +11,7 @@
 #include "error.h"
 #include "buffer.h"
 #include "record.h"
-
+#include "bptree.h"
 void storage_test()
 {
     Block* data=new Block();
@@ -116,7 +116,10 @@ void buffer_test()
 int main(int argc, const char * argv[])
 {
     Buffer buffer;
+    Storage disk;
     Record::buffer=&buffer;
+    Bptree_node::buffer=&buffer;
+    Bptree::buffer=&buffer;
     Record record(&buffer);
     Table_info table;
     table.table_name="friendg";
@@ -199,7 +202,8 @@ int main(int argc, const char * argv[])
     {
         std::cout<<get_tuple.info[i]<<std::endl;
     }
-
+    Bptree bptree;
+    bptree.create(table, attribute);
 //    record.drop_table(table);
     return 0;
 }

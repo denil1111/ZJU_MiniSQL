@@ -21,5 +21,6 @@ public:
     Error(int);
     Error(int,std::string);
     void print_error();
+    
 };
 #endif /* defined(__MiniSQL__error__) */

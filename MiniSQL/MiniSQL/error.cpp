@@ -10,8 +10,9 @@
 #include <iostream>
 const std::string Error::error_list[]={
     "database storage failed",  //0
-    "data overflow",            //1
-    "..."                       //2
+    "database does not exist",  //1
+    "table does not exist",  //2
+    "table already exists"  //3
 };
 Error::Error(int number)
 {

@@ -16,7 +16,6 @@ void Buffer::remove_block_when_full()
         disk.write_data(temp.address,&temp.data);
         buffer_list.erase(buffer_list.begin());
     }
-
 }
 void Buffer::read_data(Address address, Block *data)
 {

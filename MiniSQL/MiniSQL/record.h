@@ -13,34 +13,35 @@
 #include <string>
 #include <vector>
 #include "buffer.h"
+#include "catalog.h"
 #define ADDRESS_SIZE 4
 #define MAX_RECORD_SIZE 256
 union Address_byte
 {
     unsigned int address;
-    char byte[ADDRESS_SIZE];
+    unsigned char byte[ADDRESS_SIZE];
 };
-enum type_enum
-{
-    INT,
-    FLOAT,
-    STRING
-};
-struct Attribute
-{
-    std::string name;
-    type_enum type;
-    int size;
-    bool changed;
-    
-};
-struct Table_info
-{
-    std::vector<Attribute> attribute_list;
-    std::string table_name;
-    std::string database;
-    int tuple_size;
-};
+//enum type_enum
+//{
+//    INT,
+//    FLOAT,
+//    STRING
+//};
+//struct Attribute
+//{
+//    std::string name;
+//    type_enum type;
+//    int size;
+//    bool changed;
+//    
+//};
+//struct Table_info
+//{
+//    std::vector<Attribute> attribute_list;
+//    std::string table_name;
+//    std::string database;
+//    int tuple_size;
+//};
 struct Tuple_info
 {
     std::vector<std::string> info;
@@ -55,10 +56,10 @@ struct Tuple_info
 struct Tuple_data
 {
     int size;
-    char* data;
+    unsigned char* data;
     Tuple_data(int size)
     {
-        data=new char[size];
+        data=new unsigned char[size];
         this->size=size;
     }
     ~Tuple_data()
@@ -70,8 +71,8 @@ class Record
 {
 private:
     Storage storage;
-    void get_block_data(Block,int,int,char*);
-    void fill_block_data(Block*,int,int,char*);
+    void get_block_data(Block,int,int,unsigned char*);
+    void fill_block_data(Block*,int,int,unsigned char*);
 //    int cal_size(Table_info);
     
 public:

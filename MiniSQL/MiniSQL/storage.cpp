@@ -11,14 +11,14 @@
 #include "error.h"
 #include <stdio.h>
 #include <iostream>
-void Block::get_block_data(int seed,int size,char* data)
+void Block::get_block_data(int seed,int size,unsigned char* data)
 {
     for (int i=seed;i<size+seed;i++)
     {
         data[i-seed]=(*this)[i];
     }
 }
-void Block::fill_block_data(int seed,int size,char* data)
+void Block::fill_block_data(int seed,int size,unsigned char* data)
 {
     for (int i=seed;i<size+seed;i++)
     {
