@@ -84,7 +84,7 @@ public:
     Record()
     {
     }
-    void insert_tuple(Table_info, Tuple_info);
+    Address insert_tuple(Table_info, Tuple_info);
     void create_table(Table_info);
     void delete_tuple(Table_info,Address);
     void delete_all_tuple(Table_info);

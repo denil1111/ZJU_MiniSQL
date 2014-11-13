@@ -12,7 +12,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <vector>
-enum type_enum {INT,FLOAT,STRING};
+enum type_enum {SQL_INT,SQL_FLOAT,SQL_STRING};
 
 //using namespace std;
 

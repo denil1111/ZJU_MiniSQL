@@ -46,15 +46,15 @@ void Catalog::read_file()
                 value=attribute_son->GetText();
                 if (value=="int")
                 {
-                    attribute_info.type=INT;
+                    attribute_info.type=SQL_INT;
                 }
                 else if (value=="float")
                 {
-                    attribute_info.type=FLOAT;
+                    attribute_info.type=SQL_FLOAT;
                 }
                 else if (value=="string")
                 {
-                    attribute_info.type=STRING;
+                    attribute_info.type=SQL_STRING;
                 }
                 
                 attribute_son = attribute_son->NextSiblingElement();
@@ -152,15 +152,15 @@ void Catalog::write_file()
                 TiXmlElement * type_element = new TiXmlElement("type");
                 
                 switch (database_list[i].table_list[j].attribute_list[k].type) {
-                    case INT:
+                    case SQL_INT:
                         strcpy(ch,"int");
                         break;
                         
-                    case FLOAT:
+                    case SQL_FLOAT:
                         strcpy(ch,"float");
                         break;
                         
-                    case STRING:
+                    case SQL_STRING:
                         strcpy(ch,"string");
                         break;
                 }
