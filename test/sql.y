@@ -8,7 +8,6 @@
 #include <iostream>
 #include <sstream>
 #include "sqltree.hpp"
-
 Parse_Node * root_stmt;
 
 std::stringstream ss;
@@ -345,21 +344,21 @@ create_sp_list: {$$=new std::vector<Parse_Node *>;}
 create_sp: PRIMARY KEY '(' column_list ')'    
     {
         $$=new SPECIAL_ATTR_NODE;
-        $$->key_type=1;
+        $$->key_type=0;
         $$->key_attr=*$4;
         free($4);
     }
     | KEY '(' column_list ')'            
     {
         $$=new SPECIAL_ATTR_NODE;
-        $$->key_type=3;
+        $$->key_type=1;
         $$->key_attr=*$3;
         free($3);
     }
     | INDEX '(' column_list ')'          
     {   
         $$=new SPECIAL_ATTR_NODE;
-        $$->key_type=3;
+        $$->key_type=2;
         $$->key_attr=*$3;
         free($3);
     }
@@ -396,9 +395,9 @@ opt_length:{$$=0;}
    | '(' INTNUM ')' { $$ = $2; }
    ;
 
-data_type: INT { $$ = 1; }
-   | FLOAT { $$ = 2; }
-   | VARCHAR { $$ = 3; }
+data_type: INT { $$ = 0; }
+   | FLOAT { $$ = 1; }
+   | VARCHAR { $$ = 2; }
    ;
 
 

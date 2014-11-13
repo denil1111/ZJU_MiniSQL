@@ -151,7 +151,6 @@
 #include <iostream>
 #include <sstream>
 #include "sqltree.hpp"
-
 Parse_Node * root_stmt;
 
 std::stringstream ss;
@@ -182,7 +181,7 @@ void emit(char *s, ...);
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 23 "sql.y"
+#line 22 "sql.y"
 {
  
   int intval;
@@ -201,7 +200,7 @@ typedef union YYSTYPE
 
 }
 /* Line 193 of yacc.c.  */
-#line 205 "sql.cpp"
+#line 204 "sql.cpp"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
@@ -214,7 +213,7 @@ typedef union YYSTYPE
 
 
 /* Line 216 of yacc.c.  */
-#line 218 "sql.cpp"
+#line 217 "sql.cpp"
 
 #ifdef short
 # undef short
@@ -529,14 +528,14 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   128,   128,   132,   137,   138,   139,   140,   148,   149,
-     150,   151,   155,   186,   212,   213,   219,   220,   221,   224,
-     226,   231,   253,   266,   281,   282,   285,   287,   290,   291,
-     292,   299,   309,   318,   336,   337,   342,   345,   352,   359,
-     368,   369,   373,   378,   381,   391,   392,   395,   396,   399,
-     400,   401,   407,   420,   429,   438,   447,   450,   451,   454,
-     457,   458,   459,   460,   461,   462,   463,   464,   465,   466,
-     472,   473
+       0,   127,   127,   131,   136,   137,   138,   139,   147,   148,
+     149,   150,   154,   185,   211,   212,   218,   219,   220,   223,
+     225,   230,   252,   265,   280,   281,   284,   286,   289,   290,
+     291,   298,   308,   317,   335,   336,   341,   344,   351,   358,
+     367,   368,   372,   377,   380,   390,   391,   394,   395,   398,
+     399,   400,   406,   419,   428,   437,   446,   449,   450,   453,
+     456,   457,   458,   459,   460,   461,   462,   463,   464,   465,
+     471,   472
 };
 #endif
 
@@ -1538,12 +1537,12 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 128 "sql.y"
+#line 127 "sql.y"
     {root_stmt=(yyvsp[(1) - (2)].node_p);YYACCEPT;;}
     break;
 
   case 3:
-#line 132 "sql.y"
+#line 131 "sql.y"
     {
         (yyval.node_p)=new SELECT_NODE;*(yyval.node_p)=*(yyvsp[(1) - (1)].node_p);
         //std::cout<<"in select stmt"<<std::endl;
@@ -1552,22 +1551,22 @@ yyreduce:
     break;
 
   case 4:
-#line 137 "sql.y"
+#line 136 "sql.y"
     {(yyval.node_p)=new DELETE_NODE;*(yyval.node_p)=*(yyvsp[(1) - (1)].node_p);;}
     break;
 
   case 5:
-#line 138 "sql.y"
+#line 137 "sql.y"
     {(yyval.node_p)=new INSERT_NODE;*(yyval.node_p)=*(yyvsp[(1) - (1)].node_p);;}
     break;
 
   case 6:
-#line 139 "sql.y"
+#line 138 "sql.y"
     {(yyval.node_p)=new CREATE_DATABASE_NODE;*(yyval.node_p)=*(yyvsp[(1) - (1)].node_p);;}
     break;
 
   case 7:
-#line 140 "sql.y"
+#line 139 "sql.y"
     {
         (yyval.node_p)=new CREATE_TABLE_NODE;
         *(yyval.node_p)=*(yyvsp[(1) - (1)].node_p);
@@ -1579,27 +1578,27 @@ yyreduce:
     break;
 
   case 8:
-#line 148 "sql.y"
+#line 147 "sql.y"
     {(yyval.node_p)=new CREATE_INDEX_NODE;*(yyval.node_p)=*(yyvsp[(1) - (1)].node_p);;}
     break;
 
   case 9:
-#line 149 "sql.y"
+#line 148 "sql.y"
     {(yyval.node_p)=new DROP_TABLE_NODE;*(yyval.node_p)=*(yyvsp[(1) - (1)].node_p);;}
     break;
 
   case 10:
-#line 150 "sql.y"
+#line 149 "sql.y"
     {(yyval.node_p)=new DROP_DATABASE_NODE;*(yyval.node_p)=*(yyvsp[(1) - (1)].node_p);;}
     break;
 
   case 11:
-#line 151 "sql.y"
+#line 150 "sql.y"
     {(yyval.node_p)=new DROP_INDEX_NODE;*(yyval.node_p)=*(yyvsp[(1) - (1)].node_p);;}
     break;
 
   case 12:
-#line 157 "sql.y"
+#line 156 "sql.y"
     {
       (yyval.node_p)=new SELECT_NODE;
       (yyval.node_p)->select_list=*(yyvsp[(2) - (5)].string_list);
@@ -1632,7 +1631,7 @@ yyreduce:
     break;
 
   case 13:
-#line 188 "sql.y"
+#line 187 "sql.y"
     {
         (yyval.node_p)=new SELECT_NODE;
         (yyval.node_p)->select_list=*(yyvsp[(2) - (7)].string_list);
@@ -1658,45 +1657,45 @@ yyreduce:
     break;
 
   case 14:
-#line 212 "sql.y"
+#line 211 "sql.y"
     {(yyval.node_p)=NULL;;}
     break;
 
   case 15:
-#line 213 "sql.y"
+#line 212 "sql.y"
     {(yyval.node_p)=(yyvsp[(2) - (2)].node_p);
     //std::cout<<$$->cmp<<std::endl;
     ;}
     break;
 
   case 16:
-#line 219 "sql.y"
+#line 218 "sql.y"
     {(yyval.string_list)=new std::vector<std::string>;(yyval.string_list)->push_back((yyvsp[(1) - (1)].strval));;}
     break;
 
   case 17:
-#line 220 "sql.y"
+#line 219 "sql.y"
     {(yyval.string_list)->push_back((yyvsp[(3) - (3)].strval));;}
     break;
 
   case 18:
-#line 221 "sql.y"
+#line 220 "sql.y"
     {(yyval.string_list)=new std::vector<std::string>;(yyval.string_list)->push_back("select_all_flag");;}
     break;
 
   case 19:
-#line 224 "sql.y"
+#line 223 "sql.y"
     {(yyval.string_list)=new std::vector<std::string>;
     (yyval.string_list)->push_back((yyvsp[(1) - (1)].strval));;}
     break;
 
   case 20:
-#line 226 "sql.y"
+#line 225 "sql.y"
     {(yyval.string_list)->push_back((yyvsp[(3) - (3)].strval));;}
     break;
 
   case 21:
-#line 232 "sql.y"
+#line 231 "sql.y"
     {
       (yyval.node_p)=new DELETE_NODE;
 
@@ -1721,7 +1720,7 @@ yyreduce:
     break;
 
   case 22:
-#line 253 "sql.y"
+#line 252 "sql.y"
     {
         (yyval.node_p)=new DELETE_NODE;
 
@@ -1735,7 +1734,7 @@ yyreduce:
     break;
 
   case 23:
-#line 267 "sql.y"
+#line 266 "sql.y"
     {
         (yyval.node_p)=new INSERT_NODE;
 
@@ -1751,38 +1750,38 @@ yyreduce:
     break;
 
   case 24:
-#line 281 "sql.y"
+#line 280 "sql.y"
     {(yyval.string_vec)=new std::vector<std::vector<std::string> >;(yyval.string_vec)->push_back(*(yyvsp[(2) - (3)].string_list));delete (yyvsp[(2) - (3)].string_list);;}
     break;
 
   case 25:
-#line 282 "sql.y"
+#line 281 "sql.y"
     {(yyval.string_vec)->push_back(*(yyvsp[(4) - (5)].string_list));free((yyvsp[(4) - (5)].string_list));;}
     break;
 
   case 26:
-#line 285 "sql.y"
+#line 284 "sql.y"
     {(yyval.string_list)=new std::vector<std::string>;
     (yyval.string_list)->push_back(*(yyvsp[(1) - (1)].str));;}
     break;
 
   case 27:
-#line 287 "sql.y"
+#line 286 "sql.y"
     {(yyval.string_list)->push_back(*(yyvsp[(3) - (3)].str));;}
     break;
 
   case 28:
-#line 290 "sql.y"
+#line 289 "sql.y"
     {(yyval.str)=new std::string((yyvsp[(1) - (1)].strval));;}
     break;
 
   case 29:
-#line 291 "sql.y"
+#line 290 "sql.y"
     {(yyval.str)=new std::string((yyvsp[(1) - (1)].strval));;}
     break;
 
   case 30:
-#line 292 "sql.y"
+#line 291 "sql.y"
     {
     std::stringstream ss;
     (yyval.str)=new std::string;
@@ -1793,7 +1792,7 @@ yyreduce:
     break;
 
   case 31:
-#line 299 "sql.y"
+#line 298 "sql.y"
     {
     std::stringstream ss;
     (yyval.str)=new std::string;
@@ -1803,7 +1802,7 @@ yyreduce:
     break;
 
   case 32:
-#line 309 "sql.y"
+#line 308 "sql.y"
     {
         (yyval.node_p)=new CREATE_DATABASE_NODE;
         (yyval.node_p)->create_db_name=std::string((yyvsp[(3) - (3)].strval));
@@ -1813,7 +1812,7 @@ yyreduce:
     break;
 
   case 33:
-#line 320 "sql.y"
+#line 319 "sql.y"
     {
         (yyval.node_p)=new CREATE_TABLE_NODE; 
         (yyval.node_p)->create_tbl_name=std::string((yyvsp[(3) - (8)].strval));
@@ -1831,12 +1830,12 @@ yyreduce:
     break;
 
   case 34:
-#line 336 "sql.y"
+#line 335 "sql.y"
     {(yyval.node_list)=new std::vector<Parse_Node *>;;}
     break;
 
   case 35:
-#line 338 "sql.y"
+#line 337 "sql.y"
     {
             (yyval.node_list)=new std::vector<Parse_Node *>;
             (yyval.node_list)->push_back((yyvsp[(1) - (1)].node_p));
@@ -1844,52 +1843,52 @@ yyreduce:
     break;
 
   case 36:
-#line 342 "sql.y"
+#line 341 "sql.y"
     {(yyval.node_list)->push_back((yyvsp[(3) - (3)].node_p));;}
     break;
 
   case 37:
-#line 346 "sql.y"
+#line 345 "sql.y"
     {
         (yyval.node_p)=new SPECIAL_ATTR_NODE;
-        (yyval.node_p)->key_type=1;
+        (yyval.node_p)->key_type=0;
         (yyval.node_p)->key_attr=*(yyvsp[(4) - (5)].string_list);
         free((yyvsp[(4) - (5)].string_list));
     ;}
     break;
 
   case 38:
-#line 353 "sql.y"
+#line 352 "sql.y"
     {
         (yyval.node_p)=new SPECIAL_ATTR_NODE;
-        (yyval.node_p)->key_type=3;
+        (yyval.node_p)->key_type=1;
         (yyval.node_p)->key_attr=*(yyvsp[(3) - (4)].string_list);
         free((yyvsp[(3) - (4)].string_list));
     ;}
     break;
 
   case 39:
-#line 360 "sql.y"
+#line 359 "sql.y"
     {   
         (yyval.node_p)=new SPECIAL_ATTR_NODE;
-        (yyval.node_p)->key_type=3;
+        (yyval.node_p)->key_type=2;
         (yyval.node_p)->key_attr=*(yyvsp[(3) - (4)].string_list);
         free((yyvsp[(3) - (4)].string_list));
     ;}
     break;
 
   case 40:
-#line 368 "sql.y"
+#line 367 "sql.y"
     {(yyval.string_list)=new std::vector<std::string>;(yyval.string_list)->push_back((yyvsp[(1) - (1)].strval)); ;}
     break;
 
   case 41:
-#line 369 "sql.y"
+#line 368 "sql.y"
     {(yyval.string_list)->push_back((yyvsp[(3) - (3)].strval)); ;}
     break;
 
   case 42:
-#line 374 "sql.y"
+#line 373 "sql.y"
     {
         (yyval.node_list)=new std::vector<Parse_Node *>;
         (yyval.node_list)->push_back((yyvsp[(1) - (1)].node_p));
@@ -1897,12 +1896,12 @@ yyreduce:
     break;
 
   case 43:
-#line 378 "sql.y"
+#line 377 "sql.y"
     {(yyval.node_list)->push_back((yyvsp[(3) - (3)].node_p));;}
     break;
 
   case 44:
-#line 382 "sql.y"
+#line 381 "sql.y"
     {
                 (yyval.node_p)=new ATTR_NODE;
                 (yyval.node_p)->attr_name=std::string((yyvsp[(1) - (4)].strval));
@@ -1913,42 +1912,42 @@ yyreduce:
     break;
 
   case 45:
-#line 391 "sql.y"
+#line 390 "sql.y"
     {(yyval.boolval)=false;;}
     break;
 
   case 46:
-#line 392 "sql.y"
+#line 391 "sql.y"
     {(yyval.boolval)=true;;}
     break;
 
   case 47:
-#line 395 "sql.y"
+#line 394 "sql.y"
     {(yyval.intval)=0;;}
     break;
 
   case 48:
-#line 396 "sql.y"
+#line 395 "sql.y"
     { (yyval.intval) = (yyvsp[(2) - (3)].intval); ;}
     break;
 
   case 49:
+#line 398 "sql.y"
+    { (yyval.intval) = 0; ;}
+    break;
+
+  case 50:
 #line 399 "sql.y"
     { (yyval.intval) = 1; ;}
     break;
 
-  case 50:
+  case 51:
 #line 400 "sql.y"
     { (yyval.intval) = 2; ;}
     break;
 
-  case 51:
-#line 401 "sql.y"
-    { (yyval.intval) = 3; ;}
-    break;
-
   case 52:
-#line 407 "sql.y"
+#line 406 "sql.y"
     {
         (yyval.node_p)=new CREATE_INDEX_NODE;
         (yyval.node_p)->create_index_name=std::string((yyvsp[(3) - (8)].strval));
@@ -1962,7 +1961,7 @@ yyreduce:
     break;
 
   case 53:
-#line 420 "sql.y"
+#line 419 "sql.y"
     {
         (yyval.node_p)=new DROP_DATABASE_NODE;
         (yyval.node_p)->drop_db_name=std::string((yyvsp[(3) - (3)].strval));
@@ -1972,7 +1971,7 @@ yyreduce:
     break;
 
   case 54:
-#line 429 "sql.y"
+#line 428 "sql.y"
     {
         (yyval.node_p)=new DROP_TABLE_NODE;
         (yyval.node_p)->drop_tbl_name=std::string((yyvsp[(3) - (3)].strval));
@@ -1982,7 +1981,7 @@ yyreduce:
     break;
 
   case 55:
-#line 438 "sql.y"
+#line 437 "sql.y"
     {
         (yyval.node_p)=new DROP_INDEX_NODE;
         (yyval.node_p)->drop_index_name=std::string((yyvsp[(3) - (5)].strval));
@@ -1992,76 +1991,76 @@ yyreduce:
     break;
 
   case 56:
-#line 447 "sql.y"
+#line 446 "sql.y"
     {std::string all_s((yyvsp[(1) - (1)].strval));(yyval.node_p)=new NAME_NODE(all_s);
     //std::cout<<$$->name<<std::endl;
     ;}
     break;
 
   case 57:
-#line 450 "sql.y"
+#line 449 "sql.y"
     {std::string all_s((yyvsp[(1) - (1)].strval));(yyval.node_p)=new NAME_NODE(all_s);;}
     break;
 
   case 58:
-#line 451 "sql.y"
+#line 450 "sql.y"
     {(yyval.node_p)=new INT_NODE((yyvsp[(1) - (1)].intval));
     //std::cout<<$$->int_num<<std::endl;
     ;}
     break;
 
   case 59:
-#line 454 "sql.y"
+#line 453 "sql.y"
     {(yyval.node_p)=new FLOAT_NODE((yyvsp[(1) - (1)].floatval));;}
     break;
 
   case 60:
-#line 457 "sql.y"
+#line 456 "sql.y"
     {(yyval.node_p)=new FORMULA_NODE(7,(yyvsp[(1) - (3)].node_p),(yyvsp[(3) - (3)].node_p));;}
     break;
 
   case 61:
-#line 458 "sql.y"
+#line 457 "sql.y"
     {(yyval.node_p)=new FORMULA_NODE(8,(yyvsp[(1) - (3)].node_p),(yyvsp[(3) - (3)].node_p));;}
     break;
 
   case 62:
-#line 459 "sql.y"
+#line 458 "sql.y"
     {(yyval.node_p)=new FORMULA_NODE(9,(yyvsp[(1) - (3)].node_p),(yyvsp[(3) - (3)].node_p));;}
     break;
 
   case 63:
-#line 460 "sql.y"
+#line 459 "sql.y"
     {(yyval.node_p)=new FORMULA_NODE(10,(yyvsp[(1) - (3)].node_p),(yyvsp[(3) - (3)].node_p));;}
     break;
 
   case 64:
-#line 461 "sql.y"
+#line 460 "sql.y"
     {(yyval.node_p)=new FORMULA_NODE(11,(yyvsp[(1) - (3)].node_p),(yyvsp[(3) - (3)].node_p));;}
     break;
 
   case 65:
-#line 462 "sql.y"
+#line 461 "sql.y"
     {(yyval.node_p)=new FORMULA_NODE(11,(yyvsp[(1) - (3)].node_p),(yyvsp[(3) - (3)].node_p));;}
     break;
 
   case 66:
-#line 463 "sql.y"
+#line 462 "sql.y"
     {(yyval.node_p)=new FORMULA_NODE(12,(yyvsp[(2) - (2)].node_p),NULL);;}
     break;
 
   case 67:
-#line 464 "sql.y"
+#line 463 "sql.y"
     {(yyval.node_p)=new FORMULA_NODE(13,(yyvsp[(1) - (3)].node_p),(yyvsp[(3) - (3)].node_p));;}
     break;
 
   case 68:
-#line 465 "sql.y"
+#line 464 "sql.y"
     {(yyval.node_p)=new FORMULA_NODE(14,(yyvsp[(1) - (3)].node_p),(yyvsp[(3) - (3)].node_p));;}
     break;
 
   case 69:
-#line 466 "sql.y"
+#line 465 "sql.y"
     {
     //$$=new FORMULA_NODE;//do not must
     (yyval.node_p)=new FORMULA_NODE((yyvsp[(2) - (3)].subtok),(yyvsp[(1) - (3)].node_p),(yyvsp[(3) - (3)].node_p));
@@ -2071,18 +2070,18 @@ yyreduce:
     break;
 
   case 70:
-#line 472 "sql.y"
+#line 471 "sql.y"
     {(yyval.node_p)=new FORMULA_NODE(15,(yyvsp[(2) - (2)].node_p),NULL);;}
     break;
 
   case 71:
-#line 473 "sql.y"
+#line 472 "sql.y"
     {(yyval.node_p)=new FORMULA_NODE(15,(yyvsp[(2) - (2)].node_p),NULL);;}
     break;
 
 
 /* Line 1267 of yacc.c.  */
-#line 2086 "sql.cpp"
+#line 2085 "sql.cpp"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -2296,7 +2295,7 @@ yyreturn:
 }
 
 
-#line 476 "sql.y"
+#line 475 "sql.y"
 
 
 void

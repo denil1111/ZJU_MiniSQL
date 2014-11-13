@@ -11,6 +11,7 @@
 #include <string>
 #include <iostream>
 #include <stdlib.h>
+#include "catalog.h"
 // using namespace std;
 
 enum nodekind{
@@ -19,24 +20,23 @@ enum nodekind{
     N_FLOAT,
     N_STRING,
     N_NAME,
-    
     N_FORMULA,
     N_ATTR,
-    
+    N_SPECIAL_ATTR,
+
     N_SELECT,
     N_DELETE,
     N_INSERT,
-    N_SPECIAL_ATTR,
     N_CREATE_DATABASE,
     N_CREATE_TABLE,
     N_CREATE_INDEX,
     N_DROP_DATABASE,
     N_DROP_TABLE,
     N_DROP_INDEX,
-    N_NULL
 };
 
-struct Parse_Node{
+class Parse_Node{
+public:
     nodekind kind;
 
     //int
@@ -53,8 +53,8 @@ struct Parse_Node{
 
     //formula
     int cmp;
-    struct Parse_Node * l;
-    struct Parse_Node * r;
+    class Parse_Node * expr_l;
+    class Parse_Node * expr_r;
 
     //delete
     std::vector <std::string> del_tbl_list;
@@ -104,12 +104,14 @@ struct Parse_Node{
     int key_type;
     std::vector<std::string> key_attr;
 
+    virtual void run();
     ~Parse_Node();
 
 };
 
-struct INT_NODE:public Parse_Node
+class INT_NODE:public Parse_Node
 {
+public:
     INT_NODE(int a)
     {
         kind=N_INT;
@@ -117,8 +119,9 @@ struct INT_NODE:public Parse_Node
     }
 };
 
-struct NAME_NODE:public Parse_Node
+class NAME_NODE:public Parse_Node
 {
+public:
     NAME_NODE(std::string s)
     {
         kind=N_NAME;
@@ -126,8 +129,9 @@ struct NAME_NODE:public Parse_Node
     }
 };
 
-struct STRING_NODE:public Parse_Node
+class STRING_NODE:public Parse_Node
 {
+public:
     STRING_NODE(std::string s)
     {
         kind=N_STRING;
@@ -135,8 +139,9 @@ struct STRING_NODE:public Parse_Node
     }
 };
 
-struct FLOAT_NODE:public Parse_Node
+class FLOAT_NODE:public Parse_Node
 {
+public:
     FLOAT_NODE(float a)
     {
         kind=N_FLOAT;
@@ -144,102 +149,129 @@ struct FLOAT_NODE:public Parse_Node
     }
 };
 
-/* query node */
-struct SELECT_NODE:public Parse_Node
+class ATTR_NODE:public Parse_Node
 {
-    SELECT_NODE()
-    {
-        kind=N_SELECT;
-    }
-};
-
-/* delete node */
-struct DELETE_NODE:public Parse_Node
-{
-    DELETE_NODE()
-    {
-        kind=N_DELETE;
-    }
-};
-
-struct INSERT_NODE:public Parse_Node
-{
-    INSERT_NODE()
-    {
-        kind=N_INSERT;
-    }
-};
-
-struct CREATE_DATABASE_NODE:public Parse_Node
-{
-    CREATE_DATABASE_NODE()
-    {
-        kind=N_CREATE_DATABASE;
-    }
-};
-
-struct DROP_DATABASE_NODE:public Parse_Node
-{
-    DROP_DATABASE_NODE()
-    {
-        kind=N_DROP_DATABASE;
-    }
-};
-
-struct DROP_TABLE_NODE:public Parse_Node
-{
-    DROP_TABLE_NODE()
-    {
-        kind=N_DROP_TABLE;
-    }
-};
-
-struct DROP_INDEX_NODE:public Parse_Node{
-    DROP_INDEX_NODE()
-    {
-        kind=N_DROP_INDEX;
-    }
-};
-
-struct CREATE_INDEX_NODE:public Parse_Node{
-    CREATE_INDEX_NODE()
-    {
-        kind=N_CREATE_INDEX;
-    }
-};
-struct ATTR_NODE:public Parse_Node{
+public:
     ATTR_NODE()
     {
         kind=N_ATTR;
     }
 };
 
-struct SPECIAL_ATTR_NODE:public Parse_Node{
+class SPECIAL_ATTR_NODE:public Parse_Node
+{
+public:
     SPECIAL_ATTR_NODE()
     {
         kind=N_SPECIAL_ATTR;
     }
 };
 
-struct CREATE_TABLE_NODE:public Parse_Node{
-    CREATE_TABLE_NODE()
-    {
-        kind=N_CREATE_TABLE;
 
-    }
-};
-
-
-
-struct FORMULA_NODE:public Parse_Node{
+class FORMULA_NODE:public Parse_Node
+{
+public:
     FORMULA_NODE(int cmp, Parse_Node *l, Parse_Node *r)
     {
         kind=N_FORMULA;
         this->cmp=cmp;
-        this->l = l;
-        this->r = r;
+        this->expr_l = l;
+        this->expr_r = r;
     }
 };
+
+/* query node */
+class SELECT_NODE:public Parse_Node
+{
+public:
+    SELECT_NODE()
+    {
+        kind=N_SELECT;
+    }
+    // void run();
+};
+
+/* delete node */
+class DELETE_NODE:public Parse_Node
+{
+public:
+    DELETE_NODE()
+    {
+        kind=N_DELETE;
+    }
+    // void run();
+};
+
+class INSERT_NODE:public Parse_Node
+{
+public:
+    INSERT_NODE()
+    {
+        kind=N_INSERT;
+    }
+    // void run();
+};
+
+class CREATE_DATABASE_NODE:public Parse_Node
+{
+public:
+    CREATE_DATABASE_NODE()
+    {
+        kind=N_CREATE_DATABASE;
+    }
+    // void run();
+};
+
+class CREATE_TABLE_NODE:public Parse_Node
+{
+public:
+    CREATE_TABLE_NODE()
+    {
+        kind=N_CREATE_TABLE;
+    }
+    void run();
+};
+
+class CREATE_INDEX_NODE:public Parse_Node
+{
+public:
+    CREATE_INDEX_NODE()
+    {
+        kind=N_CREATE_INDEX;
+    }
+    // void run();
+};
+
+class DROP_DATABASE_NODE:public Parse_Node
+{
+public:
+    DROP_DATABASE_NODE()
+    {
+        kind=N_DROP_DATABASE;
+    }
+    // void run();
+};
+
+class DROP_TABLE_NODE:public Parse_Node
+{
+public:
+    DROP_TABLE_NODE()
+    {
+        kind=N_DROP_TABLE;
+    }
+    // void run();
+};
+
+class DROP_INDEX_NODE:public Parse_Node
+{
+public:
+    DROP_INDEX_NODE()
+    {
+        kind=N_DROP_INDEX;
+    }
+    // void run();
+};
+
 
 
 class Interpreter
@@ -249,6 +281,7 @@ private:
 public:
     Interpreter(){}
     void run_parser();
+    void run_sql();
 };
 
 #endif
