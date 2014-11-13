@@ -120,7 +120,7 @@ int main(int argc, const char * argv[])
     Record::buffer=&buffer;
     Bptree_node::buffer=&buffer;
     Bptree::buffer=&buffer;
-    Record record(&buffer);
+    Record record();
     Table_info table;
     table.table_name="friendg";
     table.database="zyh";

@@ -81,9 +81,8 @@ public:
     unsigned int address_to_int(Address);
     void pack(Table_info, Tuple_info, Tuple_data*);
     void unpack(Table_info, Tuple_info*, const Tuple_data*);
-    Record(Buffer *buffer)
+    Record()
     {
-        this->buffer=buffer;
     }
     void insert_tuple(Table_info, Tuple_info);
     void create_table(Table_info);
