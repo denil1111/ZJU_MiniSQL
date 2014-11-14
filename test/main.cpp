@@ -12,6 +12,9 @@
 #include "buffer.h"
 #include "record.h"
 #include "bptree.h"
+#include "sqltree.hpp"
+#include "catalog.h"
+
 // void storage_test()
 // {
 //     Block* data=new Block();
@@ -114,18 +117,19 @@
 //     buffer.write_data(address,&newblocknew);
 // }
 
-int main(int argc, const char * argv[])
+int main()
 {
     Buffer buffer;
     Storage disk;
+ 	Catalog catalog;
     Record::buffer=&buffer;
     // Bptree_node::buffer=&buffer;
     // Bptree::buffer=&buffer;
-    Record record;
     Interpreter intp;
     intp.run_parser();
     intp.run_sql();
 
+    return 0;
 //     Table_info table;
 //     table.table_name="friendg";
 //     table.database="zyh";
@@ -206,9 +210,4 @@ int main(int argc, const char * argv[])
 //     {
 //         std::cout<<get_tuple.info[i]<<std::endl;
 //     }
-
-
-
-    
-
 }

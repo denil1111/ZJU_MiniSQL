@@ -81,8 +81,10 @@ public:
     unsigned int address_to_int(Address);
     void pack(Table_info, Tuple_info, Tuple_data*);
     void unpack(Table_info, Tuple_info*, const Tuple_data*);
-    Record(){}
-    void insert_tuple(Table_info, Tuple_info);
+    Record()
+    {
+    }
+    Address insert_tuple(Table_info, Tuple_info);
     void create_table(Table_info);
     void delete_tuple(Table_info,Address);
     void delete_all_tuple(Table_info);

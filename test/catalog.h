@@ -12,9 +12,9 @@
 #include <iostream>
 #include <stdio.h>
 #include <vector>
-enum type_enum {INT,FLOAT,STRING};
+enum type_enum {SQL_INT,SQL_FLOAT,SQL_STRING};
 
-//using namespace std;.
+//using namespace std;
 
 struct Index_info
 {
@@ -53,14 +53,15 @@ class Catalog
 {
 public:
     std::vector<Database_info> database_list;
-    std::vector<Index_info> index_list;
+    //std::vector<Index_info> index_list;
     
     void read_file();
     void write_file();
     
     //创建
     //void create_database();
-    void create_table(std::string, std::string);
+    void create_table(std::string, Table_info);
+    void create_index(Index_info);
     
     //判断是否存在
     //bool is_database(string database_name);
@@ -71,6 +72,7 @@ public:
     
     //删除
     void drop_table(std::string, std::string);
+    void drop_index(std::string);
 };
 
 #endif /* defined(__catalog__Table__) */

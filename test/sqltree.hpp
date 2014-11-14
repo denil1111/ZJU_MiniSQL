@@ -69,7 +69,7 @@ public:
 
     //insert
     std::vector <std::vector<std::string> > insert_value_list;
-    std::vector <std::string> insert_tbl_list;
+    std::string insert_tbl_name;
 
     //create database
     std::string create_db_name;
@@ -81,7 +81,7 @@ public:
     std::string drop_tbl_name;
 
     //drop index
-    std::string drop_index_name;
+    std::string drop_index_attr;
     std::string drop_index_tbl;
 
     //create index
@@ -96,7 +96,7 @@ public:
 
     //attr
     std::string attr_name;
-    std::string type;//int:1,float:2,varchar:3
+    int type;//int:1,float:2,varchar:3
     int char_length;
     bool unique_flag=false;
 
@@ -209,7 +209,7 @@ public:
     {
         kind=N_INSERT;
     }
-    // void run();
+    void run();
 };
 
 class CREATE_DATABASE_NODE:public Parse_Node
@@ -239,7 +239,7 @@ public:
     {
         kind=N_CREATE_INDEX;
     }
-    // void run();
+    void run();
 };
 
 class DROP_DATABASE_NODE:public Parse_Node
@@ -259,7 +259,7 @@ public:
     {
         kind=N_DROP_TABLE;
     }
-    // void run();
+    void run();
 };
 
 class DROP_INDEX_NODE:public Parse_Node
@@ -269,7 +269,7 @@ public:
     {
         kind=N_DROP_INDEX;
     }
-    // void run();
+    void run();
 };
 
 

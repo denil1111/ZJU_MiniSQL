@@ -8,6 +8,8 @@
 #include <iostream>
 #include <sstream>
 #include "sqltree.hpp"
+//#include "error.h"
+
 Parse_Node * root_stmt;
 
 std::stringstream ss;
@@ -139,10 +141,10 @@ stmt: select_stmt {
    | create_table_stmt {
         $$=new CREATE_TABLE_NODE;
         *$$=*$1;
-        std::cout<<$$->attr_list[0]->attr_name<<std::endl;
-        std::cout<<$$->attr_list[0]->char_length<<std::endl;
-        std::cout<<$$->sp_list[0]->key_type<<std::endl;
-        std::cout<<$$->sp_list[0]->key_attr[0]<<std::endl;
+        //std::cout<<$$->attr_list[0]->attr_name<<std::endl;
+        //std::cout<<$$->attr_list[0]->char_length<<std::endl;
+        //std::cout<<$$->sp_list[0]->key_type<<std::endl;
+        //std::cout<<$$->sp_list[0]->key_attr[0]<<std::endl;
    }
    | create_index_stmt {$$=new CREATE_INDEX_NODE;*$$=*$1;}
    | drop_table_stmt {$$=new DROP_TABLE_NODE;*$$=*$1;}
@@ -262,11 +264,11 @@ delete_stmt: DELETE FROM table_reference opt_where
     ;
 
 //insert statement
-insert_stmt: INSERT INTO table_reference VALUES insert_vals_list
+insert_stmt: INSERT INTO NAME VALUES insert_vals_list
     {
         $$=new INSERT_NODE;
 
-        $$->insert_tbl_list=*$3;
+        $$->insert_tbl_name=std::string($3);
         //std::cout<<$$->insert_tbl_list[0]<<std::endl;
         free($3);
 
@@ -319,21 +321,42 @@ create_table_stmt: CREATE TABLE NAME
     {
         $$=new CREATE_TABLE_NODE; 
         $$->create_tbl_name=std::string($3);
+
+        if($5->size()>32)
+        {
+          yyerror("More than 32 attributes!");
+          exit(0);
+        }
         $$->attr_list=*$5;
-        std::cout<<$$->attr_list[0]->attr_name<<std::endl;
-        std::cout<<$$->attr_list[0]->char_length<<std::endl;
+        //std::cout<<$$->attr_list[0]->attr_name<<std::endl;
+        //std::cout<<$$->attr_list[0]->char_length<<std::endl;
 
         $$->sp_list=*$7;
-        std::cout<<$$->sp_list[0]->key_type<<std::endl;
-        std::cout<<$$->sp_list[0]->key_attr[0]<<std::endl;
+        //std::cout<<$$->sp_list[0]->key_type<<std::endl;
+        //std::cout<<$$->sp_list[0]->key_attr[0]<<std::endl;
 
         free($7);
         free($5);
     }
+    | CREATE TABLE NAME '(' create_col_list ')'  
+    {
+        $$=new CREATE_TABLE_NODE; 
+        $$->create_tbl_name=std::string($3);
+
+        if($5->size()>32)
+        {
+          yyerror("More than 32 attributes!");
+          exit(0);
+        }
+        $$->attr_list=*$5;
+        //std::cout<<$$->attr_list[0]->attr_name<<std::endl;
+        //std::cout<<$$->attr_list[0]->char_length<<std::endl;
+
+        free($5);
+    }
    ;
 
-create_sp_list: {$$=new std::vector<Parse_Node *>;}
-    | create_sp 
+create_sp_list: create_sp 
         {
             $$=new std::vector<Parse_Node *>;
             $$->push_back($1);
@@ -346,6 +369,12 @@ create_sp: PRIMARY KEY '(' column_list ')'
         $$=new SPECIAL_ATTR_NODE;
         $$->key_type=0;
         $$->key_attr=*$4;
+        emit("primary key %d",$$->key_attr.size());
+        if($$->key_attr.size()>1)
+        {
+          yyerror("More than 2 primary keys");
+          exit(0);
+        }
         free($4);
     }
     | KEY '(' column_list ')'            
@@ -392,7 +421,20 @@ column_atts:{$$=false;}
     ;
 
 opt_length:{$$=0;}
-   | '(' INTNUM ')' { $$ = $2; }
+   | '(' INTNUM ')' 
+    {   
+      if($2>=1&&$2<=255)
+      {
+        $$ = $2; 
+      }
+      else
+      {
+        yyerror("%d is out of char range(1~255)!",$2);
+        exit(0);
+        //Error error(6);
+        //throw error;
+      }
+    }
    ;
 
 data_type: INT { $$ = 0; }
@@ -436,7 +478,7 @@ drop_table_stmt:DROP TABLE NAME {
 //drop index
 drop_index_stmt:DROP INDEX NAME ON NAME {
         $$=new DROP_INDEX_NODE;
-        $$->drop_index_name=std::string($3);
+        $$->drop_index_attr=std::string($3);
         $$->drop_index_tbl=std::string($5);
         //std::cout<<$$->drop_index_name<<std::endl;
     }

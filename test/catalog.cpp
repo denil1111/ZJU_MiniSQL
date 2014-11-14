@@ -46,15 +46,15 @@ void Catalog::read_file()
                 value=attribute_son->GetText();
                 if (value=="int")
                 {
-                    attribute_info.type=INT;
+                    attribute_info.type=SQL_INT;
                 }
                 else if (value=="float")
                 {
-                    attribute_info.type=FLOAT;
+                    attribute_info.type=SQL_FLOAT;
                 }
                 else if (value=="string")
                 {
-                    attribute_info.type=STRING;
+                    attribute_info.type=SQL_STRING;
                 }
                 
                 attribute_son = attribute_son->NextSiblingElement();
@@ -152,15 +152,15 @@ void Catalog::write_file()
                 TiXmlElement * type_element = new TiXmlElement("type");
                 
                 switch (database_list[i].table_list[j].attribute_list[k].type) {
-                    case INT:
+                    case SQL_INT:
                         strcpy(ch,"int");
                         break;
                         
-                    case FLOAT:
+                    case SQL_FLOAT:
                         strcpy(ch,"float");
                         break;
                         
-                    case STRING:
+                    case SQL_STRING:
                         strcpy(ch,"string");
                         break;
                 }
@@ -217,11 +217,18 @@ void Catalog::write_file()
     
 }
 
-void Catalog::create_table(std::string database_name, std::string table_name)
+void Catalog::create_table(std::string database_name, Table_info table)
 {
-    Table_info new_table;
-    new_table.table_name=table_name;
     int i,j;
+    
+    /*for (i=0; i < table.attribute_list.size(); i++)
+    {
+        if (table.attribute_list[j].has_index==1)
+        {
+            table.attribute_list[j].index_name=table.attribute_list[j].attribute_name;
+        }
+        j++;
+    }*/
     
     for (i=0; i < database_list.size(); i++)
     {
@@ -237,17 +244,18 @@ void Catalog::create_table(std::string database_name, std::string table_name)
     }
     else
     {
-        for (j=0; j< database_list[i].table_list.size(); j++)
+        for (j=0; j < database_list[i].table_list.size(); j++)
         {
-            if (database_list[i].table_list[j].table_name==table_name)
+            if (database_list[i].table_list[j].table_name==table.table_name)
             {
                 Error error(3);
                 throw error;
             }
         }
-        database_list[i].table_list.push_back(new_table);
+        database_list[i].table_list.push_back(table);
     }
 }
+
 
 bool Catalog::is_table(std::string database_name, std::string table_name)
 {
@@ -354,6 +362,45 @@ void Catalog::drop_table(std::string database_name, std::string table_name)
         {
             Error error(2);
             throw error;
+        }
+    }
+}
+
+void Catalog::create_index(Index_info index)
+{
+    int i=0,j=0,k=0;
+    
+    while (database_list[i].database_name != index.database_name)
+    {
+        i++;
+    }
+    while (database_list[i].table_list[j].table_name != index.table_name)
+    {
+        j++;
+    }
+    while (database_list[i].table_list[j].attribute_list[k].attribute_name != index.attribute_name)
+    {
+        k++;
+    }
+    database_list[i].table_list[j].attribute_list[k].index_name = index.index_name;
+    database_list[i].table_list[j].attribute_list[k].has_index = 1;
+}
+
+
+void Catalog::drop_index(std::string index_name)
+{
+    int i,j,k;
+    for (i=0; i < database_list.size(); i++)
+    {
+        for (j=0; j < database_list[i].table_list.size(); j++)
+        {
+            for (k=0; k < database_list[i].table_list[j].attribute_list.size(); k++)
+            {
+                if (database_list[i].table_list[j].attribute_list[k].index_name == index_name)
+                {
+                    database_list[i].table_list[j].attribute_list[k].has_index=0;
+                }
+            }
         }
     }
 }

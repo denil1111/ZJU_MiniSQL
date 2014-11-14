@@ -21,7 +21,7 @@ void Record::pack(Table_info table,Tuple_info tuple,Tuple_data* tuple_data)
         int size=table.attribute_list[i].size;
         switch (table.attribute_list[i].type)
         {
-            case INT:
+            case SQL_INT:
                 union
                 {
                     unsigned char byte[4];
@@ -34,7 +34,7 @@ void Record::pack(Table_info table,Tuple_info tuple,Tuple_data* tuple_data)
                     j++;
                 }
                 break;
-            case FLOAT:
+            case SQL_FLOAT:
                 union
                 {
                     unsigned char byte[4];
@@ -47,7 +47,7 @@ void Record::pack(Table_info table,Tuple_info tuple,Tuple_data* tuple_data)
                     j++;
                 }
                 break;
-            case STRING:
+            case SQL_STRING:
                 char *data_byte;
                 data_byte=new char[size];
                 ss>>data_byte;
@@ -81,7 +81,7 @@ void Record::unpack(Table_info table,Tuple_info *tuple,const Tuple_data *tuple_d
         int size=table.attribute_list[i].size;
         switch (table.attribute_list[i].type)
         {
-            case INT:
+            case SQL_INT:
                 union
             {
                 char byte[4];
@@ -95,7 +95,7 @@ void Record::unpack(Table_info table,Tuple_info *tuple,const Tuple_data *tuple_d
                 ss<<data_int.data;
                 ss>>tuple->info[i];
                 break;
-            case FLOAT:
+            case SQL_FLOAT:
                 union
             {
                 char byte[4];
@@ -109,7 +109,7 @@ void Record::unpack(Table_info table,Tuple_info *tuple,const Tuple_data *tuple_d
                 ss<<data_float.data;
                 ss>>tuple->info[i];
                 break;
-            case STRING:
+            case SQL_STRING:
                 char *data_byte;
                 data_byte=new char[size+1];
                 for (int i=0;i<size;i++)
@@ -137,7 +137,7 @@ unsigned int Record::address_to_int(Address address)
 {
     return address.file_offset*BLOCK_SIZE+address.block_offset;
 }
-void Record::insert_tuple(Table_info table,Tuple_info tuple)
+Address Record::insert_tuple(Table_info table,Tuple_info tuple)
 {
     Tuple_data tuple_data(table.tuple_size);
     pack(table,tuple,&tuple_data);
@@ -217,6 +217,7 @@ void Record::insert_tuple(Table_info table,Tuple_info tuple)
         data[i+address.block_offset+tuple_data.size+ADDRESS_SIZE]=0;
         
     }
+    Address ret_address=address;
     buffer->write_data(address, &data);
     if (begin_address_data.address!=0)
     {
@@ -230,6 +231,7 @@ void Record::insert_tuple(Table_info table,Tuple_info tuple)
         }
         buffer->write_data(address, &data);
     }
+    return ret_address;
 }
 void Record::create_table(Table_info table)
 {

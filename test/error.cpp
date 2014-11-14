@@ -13,7 +13,12 @@ const std::string Error::error_list[]={
     "database does not exist",  //1
     "table does not exist",  //2
     "table already exists",  //3
-    "database already exists" //4
+    // "database already exists", //4
+    // "More than 32 attributes" //5
+    // "Out of char range(1~255)" //6
+    // "More than 2 primary keys" //7
+    // "Already have index" //8
+    // "Has no index on the drop attribute" //9
     
 };
 Error::Error(int number)
