@@ -89,14 +89,13 @@ void Catalog::read_file()
                 if  (value=="1")
                 {
                     attribute_info.has_index=1;
+                    attribute_son = attribute_son->NextSiblingElement();
+                    attribute_info.index_name=attribute_son->GetText();
                 }
                 else
                 {
                     attribute_info.has_index=0;
                 }
-                
-                attribute_son = attribute_son->NextSiblingElement();
-                attribute_info.index_name=attribute_son->GetText();
                 
                 value=attribute_name->Value();
                 attribute_info.attribute_name=value;
@@ -199,10 +198,13 @@ void Catalog::write_file()
                 hasindex_element->LinkEndChild(new TiXmlText(ch) );
                 attribute_element[k]->LinkEndChild(hasindex_element);
                 
-                TiXmlElement * index_element = new TiXmlElement("index_name");
-                strcpy(ch,database_list[i].table_list[j].attribute_list[k].index_name.c_str());
-                index_element->LinkEndChild(new TiXmlText(ch) );
-                attribute_element[k]->LinkEndChild(index_element);
+                if (flag)
+                {
+                    TiXmlElement * index_element = new TiXmlElement("index_name");
+                    strcpy(ch,database_list[i].table_list[j].attribute_list[k].index_name.c_str());
+                    index_element->LinkEndChild(new TiXmlText(ch) );
+                    attribute_element[k]->LinkEndChild(index_element);
+                }
                 
                 table_element[j]->LinkEndChild(attribute_element[k]);
             }
@@ -256,6 +258,26 @@ void Catalog::create_table(std::string database_name, Table_info table)
     }
 }
 
+void Catalog::create_index(Index_info index)
+{
+    int i=0,j=0,k=0;
+    while (database_list[i].database_name != index.database_name)
+    {
+        i++;
+    }
+    while (database_list[i].table_list[j].table_name != index.table_name)
+    {
+        j++;
+    }
+    while (database_list[i].table_list[j].attribute_list[k].attribute_name != index.attribute_name)
+    {
+        k++;
+    }
+    // std::cout<<i<<database_list[i].database_name<<std::endl;
+    // std::cout<<j<<database_list[i].table_list[j].table_name<<std::endl;
+    database_list[i].table_list[j].attribute_list[k].index_name = index.index_name;
+    database_list[i].table_list[j].attribute_list[k].has_index = 1;
+}
 
 bool Catalog::is_table(std::string database_name, std::string table_name)
 {
@@ -284,6 +306,25 @@ bool Catalog::is_table(std::string database_name, std::string table_name)
         }
         return false;
     }
+}
+
+bool Catalog::is_index(std::string index_name)
+{
+    int i,j,k;
+    for (i=0; i < database_list.size(); i++)
+    {
+        for (j=0; j < database_list[i].table_list.size(); j++)
+        {
+            for (k=0; k < database_list[i].table_list[j].attribute_list.size(); k++)
+            {
+                if (database_list[i].table_list[j].attribute_list[k].index_name == index_name)
+                {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
 }
 
 Table_info Catalog::get_table(std::string database_name, std::string table_name)
@@ -332,8 +373,7 @@ Table_info Catalog::get_table(std::string database_name, std::string table_name)
 
 void Catalog::drop_table(std::string database_name, std::string table_name)
 {
-    int i;
-    int j;
+    int i,j;
     
     for (i=0; i < database_list.size(); i++)
     {
@@ -365,27 +405,6 @@ void Catalog::drop_table(std::string database_name, std::string table_name)
         }
     }
 }
-
-void Catalog::create_index(Index_info index)
-{
-    int i=0,j=0,k=0;
-    
-    while (database_list[i].database_name != index.database_name)
-    {
-        i++;
-    }
-    while (database_list[i].table_list[j].table_name != index.table_name)
-    {
-        j++;
-    }
-    while (database_list[i].table_list[j].attribute_list[k].attribute_name != index.attribute_name)
-    {
-        k++;
-    }
-    database_list[i].table_list[j].attribute_list[k].index_name = index.index_name;
-    database_list[i].table_list[j].attribute_list[k].has_index = 1;
-}
-
 
 void Catalog::drop_index(std::string index_name)
 {

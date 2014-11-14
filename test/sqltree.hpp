@@ -12,6 +12,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include "catalog.h"
+#include "tinyxml.h"
 // using namespace std;
 
 enum nodekind{
@@ -39,6 +40,8 @@ class Parse_Node{
 public:
     nodekind kind;
 
+    static Catalog *catalog;
+
     //int
     int int_num;
 
@@ -57,14 +60,13 @@ public:
     class Parse_Node * expr_r;
 
     //delete
-    std::vector <std::string> del_tbl_list;
+    std::string del_tbl_name;
     bool star_flag=false;
     Parse_Node * del_where_clause;
 
     //select
     std::vector <std::string> select_list;
-    std::vector <std::string> select_tbl_list;
-    Parse_Node * nested_tbl;
+    std::vector <Parse_Node *> select_from_clause;
     Parse_Node * select_where_clause;
 
     //insert
@@ -81,7 +83,7 @@ public:
     std::string drop_tbl_name;
 
     //drop index
-    std::string drop_index_attr;
+    std::string drop_index_name;
     std::string drop_index_tbl;
 
     //create index
@@ -105,7 +107,10 @@ public:
     std::vector<std::string> key_attr;
 
     virtual void run();
-    ~Parse_Node();
+    // virtual bool logic_calc();
+    // virtual int arith_calc();
+    // virtual void comp_calc();
+    virtual ~Parse_Node(){}
 
 };
 
@@ -116,6 +121,7 @@ public:
     {
         kind=N_INT;
         this->int_num=a;
+        // catalog.read_file();
     }
 };
 
@@ -126,6 +132,7 @@ public:
     {
         kind=N_NAME;
         this->name=s;
+        // catalog.read_file();
     }
 };
 
@@ -136,6 +143,7 @@ public:
     {
         kind=N_STRING;
         this->s=s;
+        // catalog.read_file();
     }
 };
 
@@ -146,6 +154,7 @@ public:
     {
         kind=N_FLOAT;
         this->float_num=a;
+        // catalog.read_file();
     }
 };
 
@@ -155,6 +164,7 @@ public:
     ATTR_NODE()
     {
         kind=N_ATTR;
+        // catalog.read_file();
     }
 };
 
@@ -164,6 +174,7 @@ public:
     SPECIAL_ATTR_NODE()
     {
         kind=N_SPECIAL_ATTR;
+        // catalog.read_file();
     }
 };
 
@@ -177,7 +188,9 @@ public:
         this->cmp=cmp;
         this->expr_l = l;
         this->expr_r = r;
+        // catalog.read_file();
     }
+    ~FORMULA_NODE();
 };
 
 /* query node */
@@ -187,8 +200,10 @@ public:
     SELECT_NODE()
     {
         kind=N_SELECT;
+        // catalog.read_file();
     }
-    // void run();
+    void run();
+    ~SELECT_NODE(); 
 };
 
 /* delete node */
@@ -198,8 +213,9 @@ public:
     DELETE_NODE()
     {
         kind=N_DELETE;
+        // catalog.read_file();
     }
-    // void run();
+    void run();
 };
 
 class INSERT_NODE:public Parse_Node
@@ -208,6 +224,7 @@ public:
     INSERT_NODE()
     {
         kind=N_INSERT;
+        // catalog.read_file();
     }
     void run();
 };
@@ -218,6 +235,7 @@ public:
     CREATE_DATABASE_NODE()
     {
         kind=N_CREATE_DATABASE;
+        // catalog.read_file();
     }
     // void run();
 };
@@ -228,8 +246,10 @@ public:
     CREATE_TABLE_NODE()
     {
         kind=N_CREATE_TABLE;
+        // catalog.read_file();
     }
     void run();
+    ~CREATE_TABLE_NODE();
 };
 
 class CREATE_INDEX_NODE:public Parse_Node
@@ -238,6 +258,7 @@ public:
     CREATE_INDEX_NODE()
     {
         kind=N_CREATE_INDEX;
+        // catalog.read_file();
     }
     void run();
 };
@@ -248,6 +269,7 @@ public:
     DROP_DATABASE_NODE()
     {
         kind=N_DROP_DATABASE;
+        // catalog.read_file();
     }
     // void run();
 };
@@ -258,6 +280,7 @@ public:
     DROP_TABLE_NODE()
     {
         kind=N_DROP_TABLE;
+        // catalog.read_file();
     }
     void run();
 };
@@ -268,10 +291,10 @@ public:
     DROP_INDEX_NODE()
     {
         kind=N_DROP_INDEX;
+        // catalog.read_file();
     }
     void run();
 };
-
 
 
 class Interpreter
@@ -279,9 +302,12 @@ class Interpreter
 private:
     Parse_Node * plan_tree;
 public:
-    Interpreter(){}
+    Interpreter()
+    {
+    }
     void run_parser();
     void run_sql();
+    ~Interpreter(){delete plan_tree;}
 };
 
 #endif

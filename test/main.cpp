@@ -7,6 +7,7 @@
 //
 
 #include <iostream>
+#include "tinyxml.h"
 #include "storage.h"
 #include "error.h"
 #include "buffer.h"
@@ -120,94 +121,69 @@
 int main()
 {
     Buffer buffer;
-    Storage disk;
- 	Catalog catalog;
+    // Storage disk;
+ 	// Catalog init_catalog;
+ 	// Record record;
     Record::buffer=&buffer;
+    Catalog catalog;
+    Parse_Node::catalog=&catalog;
     // Bptree_node::buffer=&buffer;
     // Bptree::buffer=&buffer;
-    Interpreter intp;
-    intp.run_parser();
-    intp.run_sql();
+
+    // Database_info database_info;
+    // Table_info table_info;
+    
+    TiXmlDocument doc;
+    const char * xmlFile = "catalog.xml";
+    
+    // Database_info db;
+    // db.database_name="ZJU";
+    // catalog.database_list.push_back(db);
+    // catalog.write_file();
+
+    // init_catalog.read_file();
+
+    if (doc.LoadFile(xmlFile))
+    {
+        //cout << 1 << endl;
+        doc.Print();
+    }
+    else
+    {
+        std::cout << "can not parse xml cataolog.xml" << std::endl;
+    }
+    std::cout << "===inside main===" << std::endl;
+
+    
+    //<Databse name="ZJU" />
+
+    try
+    {
+    	Parse_Node::catalog->read_file();
+    	Interpreter intp;
+	    intp.run_parser();
+	    intp.run_sql();
+    
+		catalog.write_file();
+		if (doc.LoadFile(xmlFile))
+		{
+		    //cout << 1 << endl;
+		    doc.Print();
+		}
+		else
+		{
+		    std::cout << "can not parse xml cataolog.xml" << std::endl;
+		}
+
+		std::cout << "===after change===" << std::endl;
+
+		return 0;
+
+	}
+	catch(Error error)
+    {
+    	error.print_error();
+    }
 
     return 0;
-//     Table_info table;
-//     table.table_name="friendg";
-//     table.database="zyh";
-//     Attribute attribute;
-//     Tuple_data tuple_data(90);
-//     table.tuple_size=21;
-//     attribute.type=INT;
-//     attribute.size=4;
-//     table.attribute_list.push_back(attribute);
-//     attribute.type=STRING;
-//     attribute.size=6;
-//     table.attribute_list.push_back(attribute);
-//     attribute.type=STRING;
-//     attribute.size=4;
-//     table.attribute_list.push_back(attribute);
-//     attribute.type=STRING;
-//     attribute.size=3;
-//     table.attribute_list.push_back(attribute);
-//     attribute.type=FLOAT;
-//     attribute.size=4;
-//     table.attribute_list.push_back(attribute);
-//     tuple.info.push_back("44");
-//     tuple.info.push_back("abcde");
-//     tuple.info.push_back("ac");
-//     tuple.info.push_back("ac");
-//     tuple.info.push_back("44.4");
-//     Tuple_info tuple_unpack;
-//     for (int i=0;i<5;i++)
-//         tuple_unpack.info.push_back("");
-//     try
-//     {
-//         record.pack(table,tuple,&tuple_data);
-//     }
-//     catch (Error error)
-//     {
-//         error.print_error();
-//     }
-//     printf("before unpack\n");
-//       printf("\n");
-//     record.unpack(table,&tuple_unpack,&tuple_data);
-//     for (int i=0;i<5;i++)
-//         std::cout<<tuple_unpack.info[i]<<std::endl;
-//     for (int i=0;i<30;i++)
-//         printf("%X  ",tuple_data.data[i]);
-//     printf("\n");
-//     Storage storage;
-//     record.create_table(table);
-//     record.insert_tuple(table, tuple_unpack);
-//     record.insert_tuple(table, tuple_unpack);
-//     record.insert_tuple(table, tuple_unpack);
-//     Address del_address;
-//     del_address=record.int_to_address(table, 12);
-//     record.delete_tuple(table, del_address);
-//     del_address=record.int_to_address(table, 41);
-//     record.delete_tuple(table, del_address);
-//     record.insert_tuple(table, tuple_unpack);
-//     Tuple_info new_tuple;
-//     new_tuple.info.push_back("55");
-//     new_tuple.info.push_back("qqqq");
-//     new_tuple.info.push_back("ac");
-//     new_tuple.info.push_back("ac");
-//     new_tuple.info.push_back("32.2");
-//     record.insert_tuple(table, new_tuple);
-//     Tuple_info get_tuple(5);
-//     Address next_address;
-//     record.get_first_tuple(table, &get_tuple, &next_address);
-//     while (!(next_address.block_offset==0 && next_address.file_offset==0))
-//     {
-//         for (int i=0;i<5;i++)
-//         {
-//             std::cout<<get_tuple.info[i]<<std::endl;
-//         }
-//         std::cout<<"next"<<std::endl;
-//         Address address=next_address;
-//         record.get_tuple(table, address,&get_tuple, &next_address);
-//     }
-//     for (int i=0;i<5;i++)
-//     {
-//         std::cout<<get_tuple.info[i]<<std::endl;
-//     }
 }
