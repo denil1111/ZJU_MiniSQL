@@ -216,6 +216,7 @@ public:
         // catalog.read_file();
     }
     void run();
+    ~DELETE_NODE();
 };
 
 class INSERT_NODE:public Parse_Node

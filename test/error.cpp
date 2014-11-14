@@ -19,8 +19,12 @@ const std::string Error::error_list[]={
     "More than 2 primary keys", //7
     "Already have index or attribute is not unique", //8
     "Has no index", //9
-    "Has no attribute" //10
-    
+    "Has no attribute", //10
+    "Unknown kind Fault", //11
+    "Cann't +-*/ string", //12
+    "Invalid where clause", //13
+    "Invalid operation", //14
+    "Attribute not exists" //15
 };
 Error::Error(int number)
 {

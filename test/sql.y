@@ -53,12 +53,8 @@ void emit(char *s, ...);
 %left ANDOP
 %left NOT '!'
 %left <subtok> COMPARISON /* = <> < > <= >= <=> */
-%left '|'
-%left '&'
-%left <subtok> SHIFT /* << >> */
 %left '+' '-'
-%left '*' '/' '%' MOD
-%left '^'
+%left '*' '/'
 %nonassoc UMINUS
 
 
@@ -69,7 +65,7 @@ void emit(char *s, ...);
 %token DELETE
 %token DROP
 %token FLOAT
-%token FROM
+%token FROMs
 %token INDEX
 %token INSERT
 %token INT
@@ -501,19 +497,17 @@ expr: expr '+' expr {$$=new FORMULA_NODE(7,$1,$3);}
    | expr '-' expr {$$=new FORMULA_NODE(8,$1,$3);}
    | expr '*' expr {$$=new FORMULA_NODE(9,$1,$3);}
    | expr '/' expr {$$=new FORMULA_NODE(10,$1,$3);}
-   | expr '%' expr {$$=new FORMULA_NODE(11,$1,$3);}
-   | expr MOD expr {$$=new FORMULA_NODE(11,$1,$3);}
-   | '-' expr %prec UMINUS {$$=new FORMULA_NODE(12,$2,NULL);}
-   | expr ANDOP expr {$$=new FORMULA_NODE(13,$1,$3);}
-   | expr OR expr {$$=new FORMULA_NODE(14,$1,$3);}
+   | '-' expr %prec UMINUS {$$=new FORMULA_NODE(11,$2,NULL);}
+   | expr ANDOP expr {$$=new FORMULA_NODE(12,$1,$3);}
+   | expr OR expr {$$=new FORMULA_NODE(13,$1,$3);}
    | expr COMPARISON expr {
     //$$=new FORMULA_NODE;//do not must
     $$=new FORMULA_NODE($2,$1,$3);
     //std::cout<<$$->cmp<<std::endl;
     //std::cout<<$$->l->name<<std::endl;
   }
-   | NOT expr {$$=new FORMULA_NODE(15,$2,NULL);}
-   | '!' expr {$$=new FORMULA_NODE(15,$2,NULL);}
+   | NOT expr {$$=new FORMULA_NODE(14,$2,NULL);}
+   | '!' expr {$$=new FORMULA_NODE(14,$2,NULL);}
    ;  
 
 %%

@@ -1,7 +1,9 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <iomanip>
 #include <stdlib.h>
+#include <uuid/uuid.h>
 #include "sqltree.hpp"
 #include "sql.hpp"
 #include "buffer.h"
@@ -10,6 +12,8 @@
 #include "index.h"
 #include "record.h"
 #include "storage.h"
+enum type{C_NUM,C_STRING};
+
 Catalog * Parse_Node::catalog;
 // using namespace std;
 FORMULA_NODE::~FORMULA_NODE()
@@ -23,6 +27,11 @@ SELECT_NODE::~SELECT_NODE()
     delete select_where_clause;
 }
 
+DELETE_NODE::~DELETE_NODE()
+{
+    delete del_where_clause;
+}
+// 
 CREATE_TABLE_NODE::~CREATE_TABLE_NODE()
 {
     for (int i=0;i<attr_list.size();i++)
@@ -87,12 +96,112 @@ void Interpreter::run_sql()
 // }
 void SELECT_NODE::run()
 {
-    if(select_from_clause[0]->kind==N_NAME)
+    if(select_from_clause[0]->kind!=N_SELECT)
     {
         if(catalog->is_table("ZJU",select_from_clause[0]->name))
         {
-            std::cout<<"inside select"<<std::endl;
+            int flag=0;
+            bool select_flag=false;
+            std::vector<int> v;
+            Table_info table;
+            Table_info temp_table;
+            Address address;
+            Record record;
+            Tuple_info tuple_info;
+            Tuple_info temp_tuple;
 
+            uuid_t uu;
+            uuid_generate( uu );
+            printf("\n");
+            uuid_string_t  strc;
+            uuid_unparse_upper(uu,strc);
+
+            temp_table.table_name=strc;
+
+            std::cout<<"temp_table name:"<<temp_table.table_name<<std::endl;
+            //std::cout<<<<std::endl;
+            temp_table.tuple_size=0;
+            temp_table.database="ZJU";
+
+            table=catalog->get_table("ZJU",select_from_clause[0]->name);
+
+            std::cout<<"select_from_clause[0]:"<<select_from_clause[0]->name<<std::endl;
+
+            for (int i = 0; i <select_list.size(); i++)
+            {
+                //std::cout<<"wtf"<<std::endl;
+                for(int j=0;i<table.attribute_list.size();j++)
+                {
+                    if(select_list[i]==table.attribute_list[j].attribute_name)
+                    {
+                        temp_table.attribute_list.push_back(table.attribute_list[i]);
+                        std::cout<<"attribute:"<<table.attribute_list[i].attribute_name<<std::endl;
+                        temp_table.tuple_size+=table.attribute_list[i].size;
+                        v.push_back(j);
+                        std::cout<<"list number:"<<j<<std::endl;
+                        flag++;
+                        break;
+                    }
+                }
+            }
+
+            //std::cout<<"temp_table size:"<<temp_table.tuple_size<<std::endl;
+            
+            if(flag!=select_list.size())
+            {
+                Error error(15);
+                throw error;
+            }
+
+            record.create_table(temp_table);
+            for(int i=0;i<temp_table.attribute_list.size();i++)
+            {
+                std::cout<<std::setw(10)<<temp_table.attribute_list[i].attribute_name;
+            }
+            std::cout<<"\n";
+
+            record.get_first_tuple(table,&tuple_info,&address);
+
+            if(select_where_clause!=NULL)
+            {
+                std::cout<<"in where clause"<<std::endl;
+                // select_flag=select_where_clause->calc();
+            }
+            if(select_where_clause==NULL||select_flag==true)
+            {
+                for(int i=0;i<v.size();i++)
+                {
+                    std::cout<<std::setw(10)<<tuple_info.info[v[i]];    
+                    temp_tuple.info.push_back(tuple_info.info[v[i]]);
+                }
+                std::cout<<"\n";
+                record.insert_tuple(temp_table,temp_tuple);
+            }
+
+            while(address.address_int())
+            {
+                record.get_tuple(table,address,&tuple_info,&address);
+
+                if(select_where_clause!=NULL)
+                {
+                    std::cout<<"in where clause"<<std::endl;
+                    // select_flag=select_where_clause->calc();
+                }
+                if(select_where_clause==NULL||select_flag==true)
+                {
+                    for(int i=0;i<v.size();i++)
+                    {
+                        std::cout<<std::setw(10)<<tuple_info.info[v[i]];
+                        temp_tuple.info.push_back(tuple_info.info[v[i]]);
+                    }
+                    std::cout<<"\n";
+                    record.insert_tuple(temp_table,temp_tuple);
+                }
+            }
+
+            record.drop_table(temp_table);
+            std::cout<<"After drop temp_table"<<std::endl;
+            // std::cout<<""<<std::endl;
         }
         else
         {
@@ -103,24 +212,48 @@ void SELECT_NODE::run()
     else//nested
     {
         std::cout<<"inside nested select"<<std::endl;
+
     }
-    
 }
 
 void DELETE_NODE::run()
 {
+    // Parse_Node * p=del_where_clause;
+
     if(catalog->is_table("ZJU",del_tbl_name))
     {
-       if(star_flag)
+        Record record;
+        Table_info table;
+        table=catalog->get_table("ZJU",del_tbl_name);
+        if(star_flag)
         {
-            Record record;
-            Table_info table;
-            table=catalog->get_table("ZJU",del_tbl_name);
             record.delete_all_tuple(table);
         } 
         else
         {
             std::cout<<"inside delete"<<std::endl;
+            Tuple_info tuple_info;
+            Address address;
+            bool del_flag;
+
+            record.get_first_tuple(table,&tuple_info,&address);
+
+            // del_flag=del_where_clause->calc(table,tuple_info);
+
+            if(del_flag==true)
+            {
+                record.delete_tuple(table,address);
+            }
+
+            while(address.address_int())
+            {
+                record.get_tuple(table,address,&tuple_info,&address);
+                // del_flag=del_where_clause->calc(table,tuple_info);
+                if(del_flag==true)
+                {
+                    record.delete_tuple(table,address);
+                }
+            }
         }
     }
     else
@@ -130,6 +263,223 @@ void DELETE_NODE::run()
     }
     
 }
+
+/*
+bool FORMULA_NODE::calc()
+{
+    if(cmp<=14&&cmp>=12)//and or not
+    {
+        bool lb;
+        bool rb;
+        switch(cmp)
+        {
+            case 12:lb=expr_l->calc_bool();//and
+                    rb=expr_r->calc_bool();
+                    return (lb && rb);
+            case 13:lb=expr_l->calc_bool();//or
+                    rb=expr_r->calc_bool();
+                    return (lb || rb);
+            case 14:lb=expr_l->calc_bool();//not
+                    return (!lb);
+        }
+    }
+    else
+    {
+        if(cmp>=1&&cmp<=6)// < > <= >= != =
+        {
+            calc_bool();
+        }
+        else
+        {
+            Error error(13) //Invalid where clause
+            throw error;
+        }
+    }
+}
+
+bool FLOMULA_NODE::calc_bool()
+{
+    type * t1;
+    type * t2;
+
+    std::stringstream ss;
+    std::string s,ls,rs;
+
+    ls=expr_l->calc_num(t1);
+    rs=expr_r->calc_num(t2);
+
+    float ln=0;
+    float rn=0;
+
+    if(cmp==3&&(*t1==*t2)&&(*t1=C_STRING))//string
+    {
+        return (ls==rs);
+    }
+    else//num
+    {
+        if((*t1==*t2)&&(*t1!=C_STRING))
+        {
+            ls>>ss;
+            ss>>ln;
+            rs>>ss;
+            ss>>rn;
+            switch(cmp):
+            {
+                case 1: return (ln < rn);
+                case 2: return (ln > rn);
+                case 3: return (ln == rn);
+                case 4: return (ln != rn);
+                case 5: return (ln <= rn);
+                case 6: return (ln >= rn);
+            }
+        }
+        else
+        {
+            Error error(14);
+            throw error;
+        }
+    }
+}
+
+bool FLOAT_NODE::calc_bool()
+{
+    if(float_num!=0)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool INT_NODE::calc_bool()
+{
+    if(int_num!=0)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+// bool NAME_NODE::calc_bool()
+// {
+
+// }
+
+bool STRING_NODE::calc_bool()
+{
+    Error error(14);
+    throw error;
+}
+
+std::string FORMULA_NODE::calc_num(type * t)
+{
+    std::stringstream ss;
+    std::string s;
+
+        type * t1;
+        type * t2;
+
+        std::string ls=expr_l->calc_num(t1);
+
+        if (*t1!=C_STRING && cmp==11)
+        {
+            *t=C_NUM;
+            (-ln)>>ss;
+            ss>>s;
+            return s
+        }
+        else
+        {
+            std::string rs=expr_r->calc_num(t2);
+
+            if ((*t1==*t2)&&(*t1!=C_STRING))
+            {
+                float ln=0;
+                float rn=0;
+                ss<<ls;ss>>ln;
+                ss<<rs;ss>>rn;
+                *t=C_NUM;
+                switch(cmp):
+                {
+                    case 7: 
+                    {
+                        (ln+rn)>>ss;
+                        ss>>s;
+                        return s;
+                    }
+                    case 8:
+                    {
+                        (ln-rn)>>ss;
+                        ss>>s;
+                        return s;
+                    }
+                    case 9:
+                    {
+                        (ln*rn)>>ss;
+                        ss>>s;
+                        return s;
+                    }
+                    case 10:
+                    {
+                        (ln/rn)>>ss;
+                        ss>>s;
+                        return s;
+                    }
+                }
+            }
+            else
+            {
+                Error error(12);
+                throw error;
+            }
+        }
+}
+    
+    
+std::string INT_NODE::calc_num(type * t)
+{
+    std::stringstream ss;
+    std::string s;
+    *t=C_NUM;
+    int_num>>ss;
+    ss>>s;
+    return s;
+}
+
+std::string FLOAT_NODE::calc_num(type * t)
+{   
+    std::stringstream ss;
+    std::string s;
+    *t=C_NUM;
+    float_num>>ss;
+    ss>>s;
+    return s;
+}
+
+std::string STRING_NODE::calc_num(type * t)
+{
+    *t=C_STRING;
+    return s;
+}
+
+std::string NAME_NODE::calc_num(type * t) 
+{
+    for(int i=0;i<table.attribute_list.size();i++)
+    {
+        if(name==table.attribute_list[i].attribute_name)
+        {
+            *t=(table.attribute_list[i].type==SQL_STRING?C_STRING:C_NUM);
+            tuple_info.info[i]>>ss;
+            ss>>s;
+            return s;
+        }
+    }
+}*/
 
 void CREATE_TABLE_NODE::run()
 {
