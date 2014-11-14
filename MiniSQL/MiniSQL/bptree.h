@@ -19,15 +19,16 @@ public:
     union
     {
         char* key_str;
-        int size;
         float key_float;
         int key_int;
     }key;
+    int size;
     Key_type(){}
     virtual ~Key_type(){}
     virtual void assign(std::string data)=0;
     virtual bool not_bigger_than(Key_type*)=0;
     virtual bool equal(Key_type*)=0;
+    virtual std::string str()=0;
     virtual void get_byte(unsigned char* byte)=0;
     virtual void read_byte(unsigned char* byte)=0;
 };
@@ -37,9 +38,10 @@ public:
     String_key(int size)
     {
         key.key_str=new char[size];
-        key.size=size;
+        this->size=size;
     }
     void assign(std::string data);
+    std::string str();
     bool not_bigger_than(Key_type* another)
     {
 
@@ -61,9 +63,10 @@ class Int_key: public Key_type
 public:
     Int_key()
     {
-        key.size=4;
+        size=4;
     }
     void assign(std::string data);
+    std::string str();
     bool not_bigger_than(Key_type* another)
     {
         return key.key_int<=another->key.key_int;
@@ -81,9 +84,10 @@ class Float_key: public Key_type
 public:
     Float_key()
     {
-        key.size=4;
+        size=4;
     }
     void assign(std::string data);
+    std::string str();
     bool not_bigger_than(Key_type* another)
     {
         return key.key_float<=another->key.key_float;
@@ -99,8 +103,10 @@ class Bptree_node
 {
 public:
     static Buffer* buffer;
+    int max_count;
     int number;
     std::vector<Key_type*> key;
+    std::vector<bool> deleted;
     bool leaf;
     Address *link;
     int size;
@@ -113,18 +119,21 @@ public:
         {
             delete key[i];
         }
+        delete[] link;
     }
 };
 class Bptree
 {
 private:
     std::string filename;
+    Address root_address;
     Bptree_node *root;
     int max_branch_number;
 //    Buffer * buffer;
     Attribute attribute;
     Storage disk;
     Bptree_node *new_node();
+    bool node_insert(Address,std::string,Address,Address*,std::string*);
 public:
     static Buffer* buffer;
     Bptree()
@@ -133,7 +142,14 @@ public:
     void get_root(Table_info,Attribute);
     void create(Table_info table,Attribute attribute);
     Address search(Table_info,Attribute,std::string);
-
+    void insert(Table_info,Attribute,std::string,Address);
+    Address new_block();
+    void deletion(Table_info,Attribute,std::string);
+    void test(Table_info,Attribute);
+    ~Bptree()
+    {
+        delete root;
+    }
     
 };
 #endif /* defined(__MiniSQL__bptree__) */

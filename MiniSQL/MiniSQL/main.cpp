@@ -140,6 +140,7 @@ int main(int argc, const char * argv[])
     attribute.type=SQL_STRING;
     attribute.size=3;
     table.attribute_list.push_back(attribute);
+    attribute.attribute_name="result";
     attribute.type=SQL_FLOAT;
     attribute.size=4;
     table.attribute_list.push_back(attribute);
@@ -203,7 +204,27 @@ int main(int argc, const char * argv[])
         std::cout<<get_tuple.info[i]<<std::endl;
     }
     Bptree bptree;
-    bptree.create(table, attribute);
+    Table_info table2;
+    table2.table_name="friendindex";
+    table2.database="zyh";
+    table2.tuple_size=100;
+    attribute.type=SQL_STRING;
+    attribute.size=100;
+    table2.attribute_list.push_back(attribute);
+    Tuple_info tuple2;
+    tuple2.info.push_back("4234");
+    record.create_table(table2);
+    Address add;
+    add=record.insert_tuple(table2, tuple2);
+    bptree.create(table2, attribute);
+//    bptree.get_root(table2, attribute);
+    bptree.insert(table2, attribute, "hello", add);
+    Address finded=bptree.search(table2, attribute, "hello");
+    Tuple_info finded_tuple;
+    Address nnext_address;
+    record.get_tuple(table2, finded, &finded_tuple, &nnext_address);
+    std::cout<<finded_tuple.info[0]<<std::endl;
+//    bptree.test(table,attribute);
 //    record.drop_table(table);
     return 0;
 }

@@ -13,6 +13,8 @@ const std::string Error::error_list[]={
     "database does not exist",  //1
     "table does not exist",  //2
     "table already exists"  //3
+    "duplicated index value"//4
+    "unexisted value"//5
 };
 Error::Error(int number)
 {

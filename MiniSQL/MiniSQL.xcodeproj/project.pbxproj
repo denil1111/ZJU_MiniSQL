@@ -50,7 +50,6 @@
 		0757780519FE0D7800C1B4DA /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		0757780C19FE107500C1B4DA /* storage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = storage.cpp; sourceTree = "<group>"; };
 		0757780D19FE107500C1B4DA /* storage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = storage.h; sourceTree = "<group>"; };
-		0757781019FE159100C1B4DA /* error.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = error.h; sourceTree = "<group>"; };
 		0769A3691A0F40D100BCFBE4 /* index.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = index.h; sourceTree = "<group>"; };
 		0769A36B1A0F40F300BCFBE4 /* api.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = api.cpp; sourceTree = "<group>"; };
 		0769A36C1A0F40F300BCFBE4 /* api.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = api.h; sourceTree = "<group>"; };
@@ -113,7 +112,6 @@
 				079518A91A0869F1000827C1 /* record.h */,
 				0769A36B1A0F40F300BCFBE4 /* api.cpp */,
 				0769A36C1A0F40F300BCFBE4 /* api.h */,
-				0757781019FE159100C1B4DA /* error.h */,
 				0769A3691A0F40D100BCFBE4 /* index.h */,
 				0769A3741A0F4B7000BCFBE4 /* bptree.cpp */,
 				0769A3751A0F4B7000BCFBE4 /* bptree.h */,
