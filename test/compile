@@ -1,0 +1,3 @@
+bison -d -o sql.cpp sql.y
+flex -o sqlf.cpp sql.l
+c++ -w -o sql sql.cpp sqlf.cpp sqltree.cpp buffer.cpp error.cpp main.cpp storage.cpp record.cpp catalog.cpp tinystr.cpp tinyxml.cpp tinyxmlerror.cpp tinyxmlparser.cpp

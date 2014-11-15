@@ -53,12 +53,8 @@ void emit(char *s, ...);
 %left ANDOP
 %left NOT '!'
 %left <subtok> COMPARISON /* = <> < > <= >= <=> */
-%left '|'
-%left '&'
-%left <subtok> SHIFT /* << >> */
 %left '+' '-'
-%left '*' '/' '%' MOD
-%left '^'
+%left '*' '/'
 %nonassoc UMINUS
 
 
@@ -69,7 +65,7 @@ void emit(char *s, ...);
 %token DELETE
 %token DROP
 %token FLOAT
-%token FROM
+%token FROMs
 %token INDEX
 %token INSERT
 %token INT
@@ -154,7 +150,7 @@ stmt: select_stmt {
    
 //select
 select_stmt: SELECT select_expr_list
-     FROM table_reference
+     FROM NAME
      opt_where {
       $$=new SELECT_NODE;
       $$->select_list=*$2;
@@ -167,7 +163,10 @@ select_stmt: SELECT select_expr_list
       //std::cout<<$4->select_tbl_list[0]<<std::endl;
       //std::cout<<$4->select_tbl_list[1]<<std::endl;
 
-      $$->select_tbl_list=*$4;
+      std::string all_s($4);NAME_NODE *n=new NAME_NODE(all_s);
+      $$->select_from_clause.push_back(n);
+      std::cout<<$$->select_from_clause[0]->kind<<std::endl;
+      std::cout<<$$->select_from_clause[0]->name<<std::endl;
       free($4);
       //std::cout<<$$->select_tbl_list[0]<<std::endl;
       //std::cout<<$$->select_tbl_list[1]<<std::endl;
@@ -192,10 +191,9 @@ select_stmt: SELECT select_expr_list
         free($2);
 
         //std::cout<<"begin"<<std::endl;
-        $$->nested_tbl=new SELECT_NODE;
-        *($$->nested_tbl)=*$5;
-        //std::cout<<$$->nested_tbl->select_list[0]<<std::endl;
-        free($5);
+        $$->select_from_clause.push_back($5);
+        std::cout<<$$->select_from_clause[0]->kind<<std::endl;
+        std::cout<<$$->select_from_clause[0]->select_list[0]<<std::endl;
 
         if($7==NULL)
         {
@@ -229,11 +227,11 @@ table_reference: NAME {$$=new std::vector<std::string>;
 
 
 //delete
-delete_stmt: DELETE FROM table_reference opt_where
+delete_stmt: DELETE FROM NAME opt_where
     {
       $$=new DELETE_NODE;
 
-      $$->del_tbl_list=*$3;
+      $$->del_tbl_name=std::string($3);
       free($3);
       //std::cout<<$$->select_tbl_list[0]<<std::endl;
       //std::cout<<$$->select_tbl_list[1]<<std::endl;
@@ -251,10 +249,10 @@ delete_stmt: DELETE FROM table_reference opt_where
         //std::cout<<$$->del_where_clause->l->name<<std::endl;
       }  
     }
-    | DELETE '*' FROM table_reference {
+    | DELETE '*' FROM NAME {
         $$=new DELETE_NODE;
 
-        $$->del_tbl_list=*$4;
+        $$->del_tbl_name=std::string($4);
         free($4);
 
         //std::cout<<$$->del_tbl_list[0]<<std::endl;
@@ -478,7 +476,7 @@ drop_table_stmt:DROP TABLE NAME {
 //drop index
 drop_index_stmt:DROP INDEX NAME ON NAME {
         $$=new DROP_INDEX_NODE;
-        $$->drop_index_attr=std::string($3);
+        $$->drop_index_name=std::string($3);
         $$->drop_index_tbl=std::string($5);
         //std::cout<<$$->drop_index_name<<std::endl;
     }
@@ -499,19 +497,17 @@ expr: expr '+' expr {$$=new FORMULA_NODE(7,$1,$3);}
    | expr '-' expr {$$=new FORMULA_NODE(8,$1,$3);}
    | expr '*' expr {$$=new FORMULA_NODE(9,$1,$3);}
    | expr '/' expr {$$=new FORMULA_NODE(10,$1,$3);}
-   | expr '%' expr {$$=new FORMULA_NODE(11,$1,$3);}
-   | expr MOD expr {$$=new FORMULA_NODE(11,$1,$3);}
-   | '-' expr %prec UMINUS {$$=new FORMULA_NODE(12,$2,NULL);}
-   | expr ANDOP expr {$$=new FORMULA_NODE(13,$1,$3);}
-   | expr OR expr {$$=new FORMULA_NODE(14,$1,$3);}
+   | '-' expr %prec UMINUS {$$=new FORMULA_NODE(11,$2,NULL);}
+   | expr ANDOP expr {$$=new FORMULA_NODE(12,$1,$3);}
+   | expr OR expr {$$=new FORMULA_NODE(13,$1,$3);}
    | expr COMPARISON expr {
     //$$=new FORMULA_NODE;//do not must
     $$=new FORMULA_NODE($2,$1,$3);
     //std::cout<<$$->cmp<<std::endl;
     //std::cout<<$$->l->name<<std::endl;
   }
-   | NOT expr {$$=new FORMULA_NODE(15,$2,NULL);}
-   | '!' expr {$$=new FORMULA_NODE(15,$2,NULL);}
+   | NOT expr {$$=new FORMULA_NODE(14,$2,NULL);}
+   | '!' expr {$$=new FORMULA_NODE(14,$2,NULL);}
    ;  
 
 %%

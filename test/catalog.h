@@ -66,6 +66,7 @@ public:
     //判断是否存在
     //bool is_database(string database_name);
     bool is_table(std::string, std::string);
+    bool is_index(std::string);
     
     //获取信息
     Table_info get_table(std::string, std::string);
