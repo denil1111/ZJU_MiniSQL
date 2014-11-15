@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		0743CAA51A1394200057D335 /* catalog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0743CA9C1A1394200057D335 /* catalog.cpp */; };
-		0743CAA61A1394200057D335 /* index.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0743CA9E1A1394200057D335 /* index.cpp */; };
 		0743CAA71A1394200057D335 /* tinystr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0743CA9F1A1394200057D335 /* tinystr.cpp */; };
 		0743CAA81A1394200057D335 /* tinyxml.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0743CAA11A1394200057D335 /* tinyxml.cpp */; };
 		0743CAA91A1394200057D335 /* tinyxmlerror.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0743CAA31A1394200057D335 /* tinyxmlerror.cpp */; };
@@ -37,7 +36,6 @@
 /* Begin PBXFileReference section */
 		0743CA9C1A1394200057D335 /* catalog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = catalog.cpp; sourceTree = "<group>"; };
 		0743CA9D1A1394200057D335 /* catalog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = catalog.h; sourceTree = "<group>"; };
-		0743CA9E1A1394200057D335 /* index.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = index.cpp; sourceTree = "<group>"; };
 		0743CA9F1A1394200057D335 /* tinystr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tinystr.cpp; sourceTree = "<group>"; };
 		0743CAA01A1394200057D335 /* tinystr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tinystr.h; sourceTree = "<group>"; };
 		0743CAA11A1394200057D335 /* tinyxml.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tinyxml.cpp; sourceTree = "<group>"; };
@@ -96,7 +94,6 @@
 				0743CAAC1A1394840057D335 /* error.h */,
 				0743CA9C1A1394200057D335 /* catalog.cpp */,
 				0743CA9D1A1394200057D335 /* catalog.h */,
-				0743CA9E1A1394200057D335 /* index.cpp */,
 				0743CA9F1A1394200057D335 /* tinystr.cpp */,
 				0743CAA01A1394200057D335 /* tinystr.h */,
 				0743CAA11A1394200057D335 /* tinyxml.cpp */,
@@ -182,7 +179,6 @@
 				0743CAAD1A1394840057D335 /* error.cpp in Sources */,
 				0757780619FE0D7800C1B4DA /* main.cpp in Sources */,
 				0743CAAA1A1394200057D335 /* tinyxmlparser.cpp in Sources */,
-				0743CAA61A1394200057D335 /* index.cpp in Sources */,
 				0743CAA51A1394200057D335 /* catalog.cpp in Sources */,
 				078E420719FF41A7000E6DEA /* buffer.cpp in Sources */,
 				0769A36D1A0F40F300BCFBE4 /* api.cpp in Sources */,
