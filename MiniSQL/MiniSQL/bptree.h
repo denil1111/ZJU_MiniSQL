@@ -134,6 +134,15 @@ private:
     Storage disk;
     Bptree_node *new_node();
     bool node_insert(Address,std::string,Address,Address*,std::string*);
+    static int not_smaller_than_start_int;
+    static Address not_smaller_than_start_address;
+    static int bigger_than_start_int;
+    static Address bigger_than_start_address;
+    static int smaller_than_end_int;
+    static Address smaller_than_end_address;
+    static int not_bigger_than_end_int;
+    static Address not_bigger_than_end_address;
+
 public:
     static Buffer* buffer;
     Bptree()
@@ -146,10 +155,16 @@ public:
     Address new_block();
     void deletion(Table_info,Attribute,std::string);
     void test(Table_info,Attribute);
+    void drop(Table_info,Attribute);
+    void print(Table_info,Attribute);
+    void print_node(Address);
+    void search_section(Table_info table,Attribute attribute,bool left_open,std::string left,bool right_open,std::string right,Address* begin,Address* end);
     ~Bptree()
     {
         delete root;
     }
     
 };
+
+
 #endif /* defined(__MiniSQL__bptree__) */

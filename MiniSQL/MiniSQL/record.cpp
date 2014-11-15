@@ -192,7 +192,15 @@ Address Record::insert_tuple(Table_info table,Tuple_info tuple)
         {
             header[i+ADDRESS_SIZE*2]=new_address_data.byte[i];
         }
+        int old_block=new_address/BLOCK_SIZE;
         newer_address_data.address=new_address+full_tuple_size;
+        int new_block=newer_address_data.address/BLOCK_SIZE;
+        if (new_block>old_block)
+        {
+            Address new_block_address(table.database,table.table_name,newer_address_data.address);
+            Block new_block;
+            buffer->write_data(new_block_address,&new_block);
+        }
         for (int i=0;i<ADDRESS_SIZE;i++)
         {
             header[i+ADDRESS_SIZE]=newer_address_data.byte[i];

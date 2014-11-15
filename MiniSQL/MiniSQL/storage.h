@@ -42,7 +42,11 @@ struct Address
     std::string file_name;
     int file_offset;
     int block_offset;
-    Address(){}
+    Address()
+    {
+        file_offset=0;
+        block_offset=0;
+    }
     Address(std::string database,std::string file_name,int address_int)
     {
         this->database_name=database;
