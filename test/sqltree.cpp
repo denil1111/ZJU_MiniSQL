@@ -11,8 +11,9 @@
 #include "error.h"
 #include "record.h"
 #include "storage.h"
+#include "bptree.h"
 
-
+Buffer * Parse_Node::buffer;
 Catalog * Parse_Node::catalog;
 // using namespace std;
 FORMULA_NODE::~FORMULA_NODE()
@@ -71,13 +72,22 @@ std::string Parse_Node::calc_num(ptype&,Table_info,Tuple_info)
 
 void Interpreter::run_parser()
 {
-    std::cout<<"in run_parser"<<std::endl;
+    // std::cout<<"in run_parser"<<std::endl;
+// #ifdef NEED_YY
+       Parse_Node *yyy_parse();
+       std::cout<<"paser finished"<<std::endl;
+       plan_tree=yyy_parse();
+       if (plan_tree==NULL)
+       {
+           Error error(18);
+           throw error;
+       }
+// #endif
 }
 
 void Interpreter::run_sql()
 {
-    Parse_Node *yyy_parse();
-    plan_tree=yyy_parse();
+    
     plan_tree->run();
 }
 
@@ -116,45 +126,46 @@ void SELECT_NODE::run()
 {
     if(select_from_clause[0]->kind!=N_SELECT)
     {
-        if(catalog->is_table("ZJU",select_from_clause[0]->name))
+        Table_info table;
+        Table_info temp_table;
+        Address address;
+        Record record;
+        Tuple_info tuple_info;
+        Tuple_info temp_tuple;
+        int flag=0;
+        bool select_flag=false;
+        std::vector<int> v;
+
+        uuid_t uu;
+        uuid_generate( uu );
+        printf("\n");
+        uuid_string_t  strc;
+        uuid_unparse_upper(uu,strc);
+        temp_table.table_name=strc;
+        temp_table.database="ZJU";
+        temp_table.tuple_size=0;
+        if(select_list[0]=="select_all_flag")
         {
-            int flag=0;
-            bool select_flag=false;
-            std::vector<int> v;
-            Table_info table;
-            Table_info temp_table;
-            Address address;
-            Record record;
-            Tuple_info tuple_info;
-            Tuple_info temp_tuple;
-
-            uuid_t uu;
-            uuid_generate( uu );
-            printf("\n");
-            uuid_string_t  strc;
-            uuid_unparse_upper(uu,strc);
-
-            temp_table.table_name=strc;
-
-            std::cout<<"temp_table name:"<<temp_table.table_name<<std::endl;
-            //std::cout<<<<std::endl;
-            temp_table.tuple_size=0;
-            temp_table.database="ZJU";
-
             table=catalog->get_table("ZJU",select_from_clause[0]->name);
-
-            std::cout<<"select_from_clause[0]:"<<select_from_clause[0]->name<<std::endl;
-
+            temp_table.tuple_size=table.tuple_size;
+            for(int j=0;j<table.attribute_list.size();j++)
+            {
+                v.push_back(j);
+                temp_table.attribute_list.push_back(table.attribute_list[j]);
+                std::cout<<"attribute:"<<table.attribute_list[j].attribute_name<<std::endl;
+            }
+        }
+        else
+        {
             for (int i = 0; i <select_list.size(); i++)
             {
-                //std::cout<<"wtf"<<std::endl;
                 for(int j=0;i<table.attribute_list.size();j++)
                 {
                     if(select_list[i]==table.attribute_list[j].attribute_name)
                     {
-                        temp_table.attribute_list.push_back(table.attribute_list[i]);
-                        std::cout<<"attribute:"<<table.attribute_list[i].attribute_name<<std::endl;
-                        temp_table.tuple_size+=table.attribute_list[i].size;
+                        temp_table.attribute_list.push_back(table.attribute_list[j]);
+                        std::cout<<"attribute:"<<table.attribute_list[j].attribute_name<<std::endl;
+                        temp_table.tuple_size+=table.attribute_list[j].size;
                         v.push_back(j);
                         std::cout<<"list number:"<<j<<std::endl;
                         flag++;
@@ -162,39 +173,132 @@ void SELECT_NODE::run()
                     }
                 }
             }
-
-            //std::cout<<"temp_table size:"<<temp_table.tuple_size<<std::endl;
-            
             if(flag!=select_list.size())
             {
                 Error error(15);
                 throw error;
             }
+        }
+        
+        record.create_table(temp_table);
+        for(int i=0;i<temp_table.attribute_list.size();i++)
+        {
+            std::cout<<std::setw(10)<<temp_table.attribute_list[i].attribute_name;
+        }
+        std::cout<<"\n";
+        
+        if(catalog->is_table("ZJU",select_from_clause[0]->name))
+        {
+           
+            
 
-            record.create_table(temp_table);
-            for(int i=0;i<temp_table.attribute_list.size();i++)
+            std::cout<<"temp_table name:"<<temp_table.table_name<<std::endl;
+            //std::cout<<<<std::endl;
+            
+            bool indexed=false;
+            table=catalog->get_table("ZJU",select_from_clause[0]->name);
+            if (select_where_clause!=NULL)
             {
-                std::cout<<std::setw(10)<<temp_table.attribute_list[i].attribute_name;
-            }
-            std::cout<<"\n";
-
-            record.get_first_tuple(table,&tuple_info,&address);
-
-            if(select_where_clause!=NULL)
-            {
-                std::cout<<"in where clause"<<std::endl;
-                select_flag=select_where_clause->calc(table,tuple_info);
-            }
-            if(select_where_clause==NULL||select_flag==true)
-            {
-                for(int i=0;i<v.size();i++)
+                std::vector<Section> sections;
+                for (int i=0;i<table.attribute_list.size();i++)
                 {
-                    std::cout<<std::setw(10)<<tuple_info.info[v[i]];    
-                    temp_tuple.info.push_back(tuple_info.info[v[i]]);
+                    Section section;
+                    section.attribute=table.attribute_list[i];
+                    sections.push_back(section);
                 }
-                std::cout<<"\n";
-                record.insert_tuple(temp_table,temp_tuple);
+                bool can_section=select_where_clause->find_section(table, sections);
+                if (can_section)
+                {
+                    for (int i=0;i<table.attribute_list.size();i++)
+                    {
+                        std::cout<<table.attribute_list[i].attribute_name<<":"<<std::endl;
+                        for (int j=0;j<sections[i].section_list.size();j++)
+                        {
+                            if (sections[i].section_list[j].left_open)
+                            {
+                                std::cout<<"(";
+                            }
+                            else
+                            {
+                                std::cout<<"[";
+                            }
+                            std::cout<<sections[i].section_list[j].left;
+                            std::cout<<",";
+                            std::cout<<sections[i].section_list[j].right;
+                            if (sections[i].section_list[j].right_open)
+                            {
+                                std::cout<<")";
+                            }
+                            else
+                            {
+                                std::cout<<"]";
+                            }
+                            std::cout<<"U";
+                        }
+                        std::cout<<std::endl;
+                    }
+                    int choosed_index=-1;
+                    for (int i=0;i<table.attribute_list.size();i++)
+                    {
+                        if (table.attribute_list[i].has_index)
+                        if (sections[i].section_list.size()!=0)
+                        {
+                            choosed_index=i;
+                            break;
+                        }
+                    }
+                    if (choosed_index!=-1)
+                    {
+                        std::cout<<"zhaodaole index"<<std::endl;
+                        Bptree bptree;
+                        for (int i=0;i<sections[choosed_index].section_list.size();i++)
+                        {
+                            Single_section now_section=sections[choosed_index].section_list[i];
+                            Address begin;
+                            Address end;
+                            bptree.search_section(table, table.attribute_list[choosed_index], now_section.left_open, now_section.left, now_section.right_open, now_section.right, &begin, &end);
+                            int loop_address=begin.address_int();
+                            for (int i=loop_address;i<end.address_int();i+=ADDRESS_SIZE)
+                            {
+                                Tuple_info finded_tuple;
+                                Address now(begin.database_name,begin.file_name,i);
+                                Address_byte record_address;
+                                Address nnext_address;
+                                Block block;
+                                buffer->read_data(now,&block);
+                                block.get_block_data(now.block_offset, ADDRESS_SIZE, record_address.byte);
+                                Address record_add=Address(table.database,table.table_name,record_address.address);
+                                record.get_tuple(table, record_add, &finded_tuple, &nnext_address);
+                                bool selected_flag=select_where_clause->calc(table,finded_tuple);
+                                
+                                if(selected_flag==true)
+                                {
+                                    for(int i=0;i<v.size();i++)
+                                    {
+                                        std::cout<<std::setw(10)<<finded_tuple.info[v[i]];
+                                        temp_tuple.info.push_back(finded_tuple.info[v[i]]);
+                                    }
+                                    std::cout<<"\n";
+                                    std::cout<<"index insert record"<<std::endl;
+                                    record.insert_tuple(temp_table,temp_tuple);
+                                }
+                                indexed=true;
+                                std::cout<<finded_tuple.info[0]<<std::endl;
+                            }
+
+                        }
+                    }
+                    else
+                    {
+                        
+                    }
+                    
+                }
             }
+            // std::cout<<"select_from_clause[0]:"<<select_from_clause[0]->name<<std::endl;
+            
+            if (indexed) return;
+            record.get_first_address(table,&address);
 
             while(address.address_int())
             {
@@ -213,19 +317,25 @@ void SELECT_NODE::run()
                         temp_tuple.info.push_back(tuple_info.info[v[i]]);
                     }
                     std::cout<<"\n";
+                    std::cout<<"???"<<std::endl;
                     record.insert_tuple(temp_table,temp_tuple);
                 }
             }
 
             record.drop_table(temp_table);
             std::cout<<"After drop temp_table"<<std::endl;
-            // std::cout<<""<<std::endl;
+                //std::cout<<"temp_table size:"<<temp_table.tuple_size<<std::endl;
         }
         else
         {
+            
             Error error(2);
             throw error;
         }
+
+        
+        // std::cout<<""<<std::endl;
+    
     }
     else//nested
     {
@@ -251,26 +361,20 @@ void DELETE_NODE::run()
         {
             std::cout<<"inside delete"<<std::endl;
             Tuple_info tuple_info;
-            Address address;
+            Address address,next_address;
             bool del_flag;
 
-            record.get_first_tuple(table,&tuple_info,&address);
-
-            del_flag=del_where_clause->calc(table,tuple_info);
-
-            if(del_flag==true)
-            {
-                record.delete_tuple(table,address);
-            }
+            record.get_first_address(table,&address);
 
             while(address.address_int())
             {
-                record.get_tuple(table,address,&tuple_info,&address);
+                record.get_tuple(table,address,&tuple_info,&next_address);
                 del_flag=del_where_clause->calc(table,tuple_info);
                 if(del_flag==true)
                 {
                     record.delete_tuple(table,address);
                 }
+                address=next_address;
             }
         }
     }
@@ -281,23 +385,242 @@ void DELETE_NODE::run()
     }
     
 }
-
-
-bool FORMULA_NODE::calc(Table_info table,Tuple_info tuple_info)
+bool Single_section::in_section(std::string x,Attribute attribute)
 {
+    if (x=="inf")
+        return false;
+    Key_type *left_key,*right_key,*target;
+    bool left_bool,right_bool;
+    bool ret;
+    if (left=="inf")  left_bool=false;
+    else
+    {
+        left_bool=true;
+        switch (attribute.type)
+        {
+            case SQL_INT:left_key=new Int_key;break;
+            case SQL_FLOAT:left_key=new Float_key;break;
+            case SQL_STRING:left_key=new String_key(attribute.size);break;
+        }
+        left_key->assign(left);
+    }
+    if (right=="inf") right_bool=false;
+    else
+    {
+        right_bool=true;
+        switch (attribute.type)
+        {
+            case SQL_INT:right_key=new Int_key;break;
+            case SQL_FLOAT:right_key=new Float_key;break;
+            case SQL_STRING:right_key=new String_key(attribute.size);break;
+        }
+        right_key->assign(right);
+    }
+    switch (attribute.type)
+    {
+        case SQL_INT:target=new Int_key;break;
+        case SQL_FLOAT:target=new Float_key;break;
+        case SQL_STRING:target=new String_key(attribute.size);break;
+    }
+    target->assign(x);
+    
+    ret=true;
+    if (left_bool)
+    {
+        if (left_open)
+        {
+            if (target->not_bigger_than(left_key))
+                ret=false;
+        }
+        else
+        {
+            if (!(left_key->not_bigger_than(target)))
+                ret=false;
+        }
+        delete left_key;
+    }
+    if (right_bool)
+    {
+        if (right_open)
+        {
+            if (right_key->not_bigger_than(target))
+                ret=false;
+        }
+        else
+        {
+            if (!(target->not_bigger_than(right_key)))
+                ret=false;
+        }
+        delete right_key;
+    }
+    delete target;
+    return ret;
+
+}
+void Section::and_merge(Single_section one)
+{
+    int i=0;
+    Single_section ready=one,left_ready,right_ready;
+    for (int i=0;i<section_list.size();i++)
+    {
+        left_ready.left=ready.left;
+        left_ready.left_open=ready.left_open;
+        left_ready.right="inf";
+        right_ready.right=ready.right;
+        right_ready.right_open=ready.right_open;
+        right_ready.left="inf";
+        if (left_ready.in_section(section_list[i].left,attribute))
+        {
+            ready.left=section_list[i].left;
+            ready.left_open=section_list[i].left_open;
+        }
+        if (right_ready.in_section(section_list[i].right,attribute))
+        {
+            ready.right=section_list[i].right;
+            ready.right_open=section_list[i].right_open;
+        }
+    }
+    section_list.resize(0);
+    section_list.push_back(ready);
+}
+void Section::and_merge(Section another)
+{
+    Section new_section;
+    for (int i=0;i<another.section_list.size();i++)
+    {
+        and_merge(another.section_list[i]);
+    }
+}
+bool FORMULA_NODE::find_section(Table_info table,std::vector<Section>& sections)
+{
+    int n;
     if(cmp<=14&&cmp>=12)//and or not
     {
         bool lb;
         bool rb;
+        std::vector<Section> section1=sections;
+        std::vector<Section> section2=sections;
+        lb=expr_l->find_section(table,section1);
+        rb=expr_r->find_section(table,section2);
+        if (!(lb&&rb))
+        {
+            return false;
+        }
+        for (int i=0;i<table.attribute_list.size();i++)
+        {
+            switch(cmp)
+            {
+                case 12:
+                        section1[i].and_merge(section2[i]);
+                        break;
+                // case 13:lb=expr_l->calc_bool(table,tuple_info);//or
+                //         rb=expr_r->calc_bool(table,tuple_info);
+                //         return (lb | rb);
+                // case 14:lb=expr_l->calc_bool(table,tuple_info);//not
+                        // return (!lb);
+            }
+        }
+        sections=section1;
+        return true;
+    }
+    if(cmp>=1&&cmp<=6)
+    {
+        std::string target;
+        Parse_Node *temp;
+        if (expr_r->kind==N_NAME)
+        {
+            temp=expr_r;
+            expr_r=expr_l;
+            expr_l=temp;
+        }
+        if (expr_l->kind==N_NAME)
+        {
+            for(int i=0;i<table.attribute_list.size();i++)
+            {
+                if(expr_l->name==table.attribute_list[i].attribute_name)
+                {
+                    n=i;
+                    break;
+                }
+            }
+            if(expr_r->kind==N_INT||expr_r->kind==N_FLOAT||expr_r->kind==N_STRING)
+            {
+                Tuple_info tuple;
+                ptype t;
+                target=expr_r->calc_num(t,table,tuple);
+            }
+            Single_section s_sections;
+            switch(cmp)
+            {
+                case 1:
+                    s_sections.right=target;
+                    s_sections.right_open=true;
+                    s_sections.left="inf";
+                    sections[n].section_list.push_back(s_sections);
+                    break;
+                case 2: 
+                    s_sections.left=target;
+                    s_sections.left_open=true;
+                    s_sections.right="inf";
+                    sections[n].section_list.push_back(s_sections);
+                    break;
+                case 3: 
+                    s_sections.right=target;
+                    s_sections.right_open=true;
+                    s_sections.left="inf";
+                    sections[n].section_list.push_back(s_sections);
+                    s_sections.left_open=true;
+                    s_sections.left=target;
+                    s_sections.right="inf";
+                    sections[n].section_list.push_back(s_sections);
+                    break;
+
+                case 4:
+                    s_sections.right=target;
+                    s_sections.right_open=false;
+                    s_sections.left_open=false;
+                    s_sections.left=target;
+                    sections[n].section_list.push_back(s_sections);
+                    break;
+                case 5: 
+                    s_sections.right=target;
+                    s_sections.right_open=false;
+                    s_sections.left="inf";
+                    sections[n].section_list.push_back(s_sections);
+                    break;
+                case 6: 
+                    s_sections.left=target;
+                    s_sections.left_open=false;
+                    s_sections.right="inf";
+                    sections[n].section_list.push_back(s_sections);
+                    break;
+            }
+        }
+        else
+        {
+            return false;
+        }
+       
+        return true;
+    }
+    return true;
+}
+bool FORMULA_NODE::calc(Table_info table,Tuple_info tuple_info)
+{
+    if(cmp<=14&&cmp>=12)//and or not
+    {
+        std::cout<<"compare"<<std::endl;
+        bool lb;
+        bool rb;
         switch(cmp)
         {
-            case 12:lb=expr_l->calc_bool(table,tuple_info);//and
-                    rb=expr_r->calc_bool(table,tuple_info);
+            case 12:lb=expr_l->calc(table,tuple_info);//and
+                    rb=expr_r->calc(table,tuple_info);
                     return (lb & rb);
-            case 13:lb=expr_l->calc_bool(table,tuple_info);//or
-                    rb=expr_r->calc_bool(table,tuple_info);
+            case 13:lb=expr_l->calc(table,tuple_info);//or
+                    rb=expr_r->calc(table,tuple_info);
                     return (lb | rb);
-            case 14:lb=expr_l->calc_bool(table,tuple_info);//not
+            case 14:lb=expr_l->calc(table,tuple_info);//not
                     return (!lb);
         }
     }
@@ -329,9 +652,22 @@ bool FORMULA_NODE::calc_bool(Table_info table,Tuple_info tuple_info)
     float ln=0;
     float rn=0;
 
-    if(cmp==3&&(t1==t2)&&(t1=C_STRING))//string
+    if((t1==t2)&&(t1=C_STRING))//string
     {
-        return (ls==rs);
+        std::cout<<"com"<<ls<<"and"<<rs<<std::endl;
+        switch(cmp)
+        {
+            case 1: return (ls < rs);
+            case 2: return (ls > rs);
+            case 3: return (ls != rs);
+            case 4: return (ls == rs);
+            case 5: return (ls <= rs);
+            case 6: return (ls >= rs);
+        }
+        {
+            Error error(14);
+            throw error;
+        }
     }
     else//num
     {
@@ -353,7 +689,6 @@ bool FORMULA_NODE::calc_bool(Table_info table,Tuple_info tuple_info)
                 case 6: return (ln >= rn);
             }
         }
-        else
         {
             Error error(14);
             throw error;
@@ -530,10 +865,10 @@ std::string NAME_NODE::calc_num(ptype& t,Table_info table,Tuple_info tuple_info)
         if(name==table.attribute_list[i].attribute_name)
         {
             t=(table.attribute_list[i].type==SQL_STRING?C_STRING:C_NUM);
-            return tuple_info.info[i];
+            return t==C_STRING?("\""+tuple_info.info[i]+"\""):tuple_info.info[i];
         }
     }
-    Error error(15);
+    Error error(15,name);
     throw error;
 }
 
@@ -609,6 +944,7 @@ void CREATE_TABLE_NODE::run()
 
         //implement
         catalog->create_table("ZJU",table);//change the catalog
+        record.create_table(table);//change the storage
 
         if(!sp_list.empty())
         {
@@ -634,6 +970,10 @@ void CREATE_TABLE_NODE::run()
                             index_info.table_name=table.table_name;
                             index_info.attribute_name=table.attribute_list[i].attribute_name;
                             catalog->create_index(index_info);
+                            Bptree bptree;
+                            std::cout<<"start create index"<<std::endl;
+                            bptree.create(table,table.attribute_list[i]);
+                            std::cout<<"end create index"<<std::endl;
                             //implement
                         }
                     }
@@ -655,6 +995,8 @@ void CREATE_TABLE_NODE::run()
                             index_info.attribute_name=table.attribute_list[i].attribute_name;
                             std::cout<<"befor create index"<<std::endl;
                             catalog->create_index(index_info);
+                            Bptree bptree;
+                            bptree.create(table,table.attribute_list[i]);
                             //implement
                         }
                     }
@@ -675,13 +1017,15 @@ void CREATE_TABLE_NODE::run()
                             index_info.table_name=table.table_name;
                             index_info.attribute_name=table.attribute_list[i].attribute_name;
                             catalog->create_index(index_info);
+                            Bptree bptree;
+                            bptree.create(table,table.attribute_list[i]);
                             //implement
                         }
                     }
                 }  
             }
         }
-        record.create_table(table);//change the storage
+        
     }
     else
     {
@@ -735,6 +1079,8 @@ void CREATE_INDEX_NODE::run()
                     index_info.attribute_name=create_index_attr;
                     catalog->create_index(index_info);
                     flag=1;
+                    Bptree bptree;
+                    bptree.create(table,table.attribute_list[i]);
                     break;
                 }
                 else
@@ -810,6 +1156,7 @@ void INSERT_NODE::run()
 
             for(int j=0;j<insert_value_list[i].size();j++)
             {
+                
                 //std::cout<<insert_value_list[i][j]<<std::endl;
                 tuple_info.info.push_back(insert_value_list[i][j]);
             }
@@ -817,7 +1164,15 @@ void INSERT_NODE::run()
             // {
             //     std::cout<<tuple_info.info[k]<<std::endl;
             // }
-            record.insert_tuple(table,tuple_info);
+            Address record_address=record.insert_tuple(table,tuple_info);
+            for(int j=0;j<tuple_info.info.size();j++)
+            {
+                if(table.attribute_list[j].is_primary==1 ||table.attribute_list[j].has_index==1)
+                {
+                    Bptree bptree;   
+                    bptree.insert(table,table.attribute_list[j],tuple_info.info[j],record_address);
+                }
+            }
         }
     } 
     else                                                             

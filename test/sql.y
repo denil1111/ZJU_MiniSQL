@@ -8,7 +8,7 @@
 #include <iostream>
 #include <sstream>
 #include "sqltree.hpp"
-//#include "error.h"
+#include "error.h"
 
 Parse_Node * root_stmt;
 
@@ -82,7 +82,7 @@ void emit(char *s, ...);
 %token VALUES
 %token VARCHAR
 %token WHERE
-
+%token EXIT
 
 %type <node_p> select_stmt
 %type <string_list> select_expr_list
@@ -123,6 +123,8 @@ void emit(char *s, ...);
 %%
 
 stmt_list: stmt ';' {root_stmt=$1;YYACCEPT;}
+//    |EXIT {Error error(20);throw error;}
+//    |EXIT ';' {Error error(20);throw error;}
     ;
 
 //statement
@@ -146,6 +148,7 @@ stmt: select_stmt {
    | drop_table_stmt {$$=new DROP_TABLE_NODE;*$$=*$1;}
    | drop_db_stmt {$$=new DROP_DATABASE_NODE;*$$=*$1;}
    | drop_index_stmt {$$=new DROP_INDEX_NODE;*$$=*$1;}
+   | EXIT {Exit exit;throw exit;}
    ;
    
 //select
@@ -484,7 +487,7 @@ drop_index_stmt:DROP INDEX NAME ON NAME {
 expr: NAME          {std::string all_s($1);$$=new NAME_NODE(all_s);
     //std::cout<<$$->name<<std::endl;
     }
-   | STRING        {std::string all_s($1);$$=new NAME_NODE(all_s);}
+   | STRING        {std::string all_s($1);$$=new STRING_NODE(all_s);}
    | INTNUM        {$$=new INT_NODE($1);
     //std::cout<<$$->int_num<<std::endl;
     }
@@ -504,6 +507,7 @@ expr: expr '+' expr {$$=new FORMULA_NODE(7,$1,$3);}
     //std::cout<<$$->cmp<<std::endl;
     //std::cout<<$$->l->name<<std::endl;
   }
+   | '(' expr ')' {$$=$2;}
    | NOT expr {$$=new FORMULA_NODE(14,$2,NULL);}
    | '!' expr {$$=new FORMULA_NODE(14,$2,NULL);}
    ;  
@@ -540,8 +544,13 @@ Parse_Node *
 yyy_parse()
 {
   if(!yyparse())
+  {
     printf("SQL parse worked\n");
+    return root_stmt;
+  }
   else
+  {
     printf("SQL parse failed\n");
-  return root_stmt;
+    return NULL;                      
+  }
 }  

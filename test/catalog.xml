@@ -15,4 +15,51 @@
             <has_index>0</has_index>
         </Attribute>
     </Table>
+    <Table name="fuck">
+        <Attribute name="id">
+            <type>int</type>
+            <size>4</size>
+            <is_primary>0</is_primary>
+            <is_only>0</is_only>
+            <has_index>0</has_index>
+        </Attribute>
+        <Attribute name="name">
+            <type>string</type>
+            <size>10</size>
+            <is_primary>0</is_primary>
+            <is_only>0</is_only>
+            <has_index>0</has_index>
+        </Attribute>
+        <Attribute name="age">
+            <type>int</type>
+            <size>4</size>
+            <is_primary>0</is_primary>
+            <is_only>0</is_only>
+            <has_index>0</has_index>
+        </Attribute>
+        <Attribute name="ability">
+            <type>float</type>
+            <size>4</size>
+            <is_primary>0</is_primary>
+            <is_only>0</is_only>
+            <has_index>0</has_index>
+        </Attribute>
+    </Table>
+    <Table name="ttt">
+        <Attribute name="a">
+            <type>int</type>
+            <size>4</size>
+            <is_primary>1</is_primary>
+            <is_only>1</is_only>
+            <has_index>1</has_index>
+            <index_name>ttt_a</index_name>
+        </Attribute>
+        <Attribute name="b">
+            <type>int</type>
+            <size>4</size>
+            <is_primary>0</is_primary>
+            <is_only>0</is_only>
+            <has_index>0</has_index>
+        </Attribute>
+    </Table>
 </Databse>

@@ -15,7 +15,7 @@
 #include "bptree.h"
 #include "sqltree.hpp"
 #include "catalog.h"
-
+#define NEED_YY
 // void storage_test()
 // {
 //     Block* data=new Block();
@@ -127,8 +127,9 @@ int main()
     Record::buffer=&buffer;
     Catalog catalog;
     Parse_Node::catalog=&catalog;
-    // Bptree_node::buffer=&buffer;
-    // Bptree::buffer=&buffer;
+    Parse_Node::buffer=&buffer;
+    Bptree_node::buffer=&buffer;
+    Bptree::buffer=&buffer;
 
     // Database_info database_info;
     // Table_info table_info;
@@ -153,34 +154,45 @@ int main()
         std::cout << "can not parse xml cataolog.xml" << std::endl;
     }
     std::cout << "===inside main===" << std::endl;
-
-    try
+    Parse_Node::catalog->read_file();
+    while (true)
     {
-    	Parse_Node::catalog->read_file();
-    	Interpreter intp;
-	    intp.run_parser();
-	    intp.run_sql();
-    
-		catalog.write_file();
-		if (doc.LoadFile(xmlFile))
-		{
-		    //cout << 1 << endl;
-		    doc.Print();
-		}
-		else
-		{
-		    std::cout << "can not parse xml cataolog.xml" << std::endl;
-		}
+        try
+        {
+        	Interpreter intp;
+    	    intp.run_parser();
+            std::cout<<"parser??"<<std::endl;
+    	    intp.run_sql();
+        
+    		// catalog.write_file();
+    		// if (doc.LoadFile(xmlFile))
+    		// {
+    		//     //cout << 1 << endl;
+    		//     doc.Print();
+    		// }
+    		// else
+    		// {
+    		//     std::cout << "can not parse xml cataolog.xml" << std::endl;
+    		// }
 
-		std::cout << "===after change===" << std::endl;
+    		// std::cout << "===after change===" << std::endl;
 
-		return 0;
 
-	}
-	catch(Error error)
-    {
-    	error.print_error();
+    	}
+    	catch(Error error)
+        {
+            // std::cout<<"error??"<<std::endl;
+        	error.print_error();
+        }
+        catch(Exit)
+        {
+            break;
+        }
+        catch(...)
+        {
+            Error error(19);
+            error.print_error();
+        }
     }
-
     return 0;
 }

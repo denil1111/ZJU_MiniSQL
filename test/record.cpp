@@ -192,7 +192,15 @@ Address Record::insert_tuple(Table_info table,Tuple_info tuple)
         {
             header[i+ADDRESS_SIZE*2]=new_address_data.byte[i];
         }
+        int old_block=new_address/BLOCK_SIZE;
         newer_address_data.address=new_address+full_tuple_size;
+        int new_block=newer_address_data.address/BLOCK_SIZE;
+        if (new_block>old_block)
+        {
+            Address new_block_address(table.database,table.table_name,newer_address_data.address);
+            Block new_block;
+            buffer->write_data(new_block_address,&new_block);
+        }
         for (int i=0;i<ADDRESS_SIZE;i++)
         {
             header[i+ADDRESS_SIZE]=newer_address_data.byte[i];
@@ -313,7 +321,7 @@ void Record::delete_all_tuple(Table_info table)
     drop_table(table);
     create_table(table);
 }
-void Record::get_first_tuple(Table_info table, Tuple_info *tuple, Address *next_address)
+void Record::get_first_address(Table_info table,Address *first_address)
 {
     Address header_address=int_to_address(table, 0);
     Block header;
@@ -321,7 +329,8 @@ void Record::get_first_tuple(Table_info table, Tuple_info *tuple, Address *next_
     Address_byte begin_address;
     get_block_data(header, ADDRESS_SIZE*2, ADDRESS_SIZE, begin_address.byte);
     Address address=int_to_address(table, begin_address.address);
-    get_tuple(table,address,tuple,next_address);
+    *first_address=address;
+//    get_tuple(table,address,tuple,next_address);
 }
 void Record::get_tuple(Table_info table,Address address,Tuple_info* tuple,Address* next_address)
 {

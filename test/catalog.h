@@ -74,6 +74,10 @@ public:
     //删除
     void drop_table(std::string, std::string);
     void drop_index(std::string);
+    ~Catalog()
+    {
+        write_file();
+    }
 };
 
 #endif /* defined(__catalog__Table__) */

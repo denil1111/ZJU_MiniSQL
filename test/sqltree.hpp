@@ -16,7 +16,24 @@
 #include "tinyxml.h"
 enum ptype{C_NUM,C_STRING};
 // using namespace std;
-
+struct Single_section
+{
+    bool left_open,right_open;
+    std::string left,right;
+    bool in_section(std::string x,Attribute);
+};
+struct Section
+{
+    Attribute attribute;
+    ptype type;
+    std::vector<Single_section> section_list;
+    void and_merge(Section);
+    // void or_merge(Section);
+    void and_merge(Single_section);
+    // void or_merge(Single_section);
+    // void not();
+    
+};
 enum nodekind{
     //    const node
     N_INT,
@@ -40,6 +57,7 @@ enum nodekind{
 
 class Parse_Node{
 public:
+    static Buffer* buffer;
     nodekind kind;
 
     static Catalog *catalog;
@@ -113,6 +131,10 @@ public:
     virtual bool calc_bool(Table_info,Tuple_info);
     virtual std::string calc_num(ptype&,Table_info,Tuple_info);
     virtual ~Parse_Node(){}
+    virtual bool find_section(Table_info table,std::vector<Section> &sections)
+    {
+        return true;
+    }
 
 };
 
@@ -202,6 +224,7 @@ public:
     }
     bool calc(Table_info,Tuple_info);
     bool calc_bool(Table_info,Tuple_info);
+    virtual bool find_section(Table_info table,std::vector<Section>& sections);
     std::string calc_num(ptype& ,Table_info,Tuple_info);
     ~FORMULA_NODE();
 };
@@ -315,7 +338,7 @@ class Interpreter
 {  
 private:
 public:
-    Parse_Node * plan_tree;
+    Parse_Node * plan_tree=NULL;
     Interpreter()
     {
     }

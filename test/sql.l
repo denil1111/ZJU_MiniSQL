@@ -45,6 +45,7 @@ UNIQUE	{ return UNIQUE; }
 VALUES? { return VALUES; }
 VARCHAR(ACTER)?	{ return VARCHAR; }
 WHERE	{ return WHERE; }
+EXIT {return EXIT;}
 
    /* numbers */
 
@@ -59,7 +60,6 @@ WHERE	{ return WHERE; }
 
    /* strings */
 
-'(\\.|''|[^'\n])*'	|
 \"(\\.|\"\"|[^"\n])*\"  { yylval.strval = strdup(yytext); return STRING; }
 
 '(\\.|[^'\n])*$	        { yyerror("Unterminated string %s", yytext); }

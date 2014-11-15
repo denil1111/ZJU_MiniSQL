@@ -69,7 +69,8 @@
      UNIQUE = 285,
      VALUES = 286,
      VARCHAR = 287,
-     WHERE = 288
+     WHERE = 288,
+     EXIT = 289
    };
 #endif
 /* Tokens.  */
@@ -104,6 +105,7 @@
 #define VALUES 286
 #define VARCHAR 287
 #define WHERE 288
+#define EXIT 289
 
 
 
@@ -129,7 +131,7 @@ typedef union YYSTYPE
 
 }
 /* Line 1529 of yacc.c.  */
-#line 133 "sql.hpp"
+#line 135 "sql.hpp"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
