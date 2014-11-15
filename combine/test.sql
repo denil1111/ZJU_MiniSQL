@@ -1,3 +1,16 @@
+show database; 
+use database ZJU;
+show tables;
+create table t(a int,b int unique,c int,index(c),primary key(a));
+
+
+
+
+
+
+
+
+
 select * from ttt where a>3 and a<300;
 create table fuck( 
 id int,

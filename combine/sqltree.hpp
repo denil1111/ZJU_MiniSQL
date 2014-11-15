@@ -263,7 +263,7 @@ public:
     virtual bool find_section(Table_info table,std::vector<Section>& sections);
     std::string calc_num(ptype& ,Table_info,Tuple_info);
     ~FORMULA_NODE();
-};
+};select_node
 
 /* query node */
 class SELECT_NODE:public Parse_Node
