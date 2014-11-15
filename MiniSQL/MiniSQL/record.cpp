@@ -321,7 +321,7 @@ void Record::delete_all_tuple(Table_info table)
     drop_table(table);
     create_table(table);
 }
-void Record::get_first_tuple(Table_info table, Tuple_info *tuple, Address *next_address)
+void Record::get_first_address(Table_info table,Address *first_address)
 {
     Address header_address=int_to_address(table, 0);
     Block header;
@@ -329,7 +329,8 @@ void Record::get_first_tuple(Table_info table, Tuple_info *tuple, Address *next_
     Address_byte begin_address;
     get_block_data(header, ADDRESS_SIZE*2, ADDRESS_SIZE, begin_address.byte);
     Address address=int_to_address(table, begin_address.address);
-    get_tuple(table,address,tuple,next_address);
+    *first_address=address;
+//    get_tuple(table,address,tuple,next_address);
 }
 void Record::get_tuple(Table_info table,Address address,Tuple_info* tuple,Address* next_address)
 {

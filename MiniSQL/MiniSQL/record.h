@@ -89,7 +89,7 @@ public:
     void delete_tuple(Table_info,Address);
     void delete_all_tuple(Table_info);
     void drop_table(Table_info);
-    void get_first_tuple(Table_info,Tuple_info*,Address*);
+    void get_first_address(Table_info,Address*);
     void get_tuple(Table_info,Address,Tuple_info*,Address*);
     
 };
