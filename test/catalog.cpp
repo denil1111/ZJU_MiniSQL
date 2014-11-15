@@ -66,6 +66,7 @@ void Catalog::read_file()
                 value=attribute_son->GetText();
                 if  (value=="1")
                 {
+                    std::cout<<"flag"<<std::endl;
                     attribute_info.is_primary=1;
                 }
                 else

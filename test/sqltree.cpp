@@ -4,15 +4,14 @@
 #include <iomanip>
 #include <stdlib.h>
 #include <uuid/uuid.h>
+#include <sstream>
 #include "sqltree.hpp"
-#include "sql.hpp"
 #include "buffer.h"
 #include "catalog.h"
 #include "error.h"
-#include "index.h"
 #include "record.h"
 #include "storage.h"
-enum type{C_NUM,C_STRING};
+
 
 Catalog * Parse_Node::catalog;
 // using namespace std;
@@ -49,17 +48,36 @@ void Parse_Node::run()
     std::cout<<"In Parse_Node run()"<<std::endl;
 }
 
+bool Parse_Node::calc(Table_info,Tuple_info)
+{
+    std::cout<<"In Parse_Node calc()"<<std::endl;
+    Error error(14);
+    throw error;
+}
+
+bool Parse_Node::calc_bool(Table_info,Tuple_info)
+{
+    std::cout<<"In Parse_Node calc_bool()"<<std::endl;
+    Error error(14);
+    throw error;
+}
+
+std::string Parse_Node::calc_num(ptype&,Table_info,Tuple_info)
+{
+    std::cout<<"In Parse_Node calc_num()"<<std::endl;
+    Error error(14);
+    throw error;
+}
+
 void Interpreter::run_parser()
 {
-    Parse_Node *yyy_parse();
-    plan_tree=yyy_parse();
     std::cout<<"in run_parser"<<std::endl;
-    // std::cout<<plan_tree->kind<<std::endl;
-    // std::cout<<plan_tree->attr_list[0]->attr_name<<std::endl;
 }
 
 void Interpreter::run_sql()
 {
+    Parse_Node *yyy_parse();
+    plan_tree=yyy_parse();
     plan_tree->run();
 }
 
@@ -165,7 +183,7 @@ void SELECT_NODE::run()
             if(select_where_clause!=NULL)
             {
                 std::cout<<"in where clause"<<std::endl;
-                // select_flag=select_where_clause->calc();
+                select_flag=select_where_clause->calc(table,tuple_info);
             }
             if(select_where_clause==NULL||select_flag==true)
             {
@@ -185,7 +203,7 @@ void SELECT_NODE::run()
                 if(select_where_clause!=NULL)
                 {
                     std::cout<<"in where clause"<<std::endl;
-                    // select_flag=select_where_clause->calc();
+                    select_flag=select_where_clause->calc(table,tuple_info);
                 }
                 if(select_where_clause==NULL||select_flag==true)
                 {
@@ -238,7 +256,7 @@ void DELETE_NODE::run()
 
             record.get_first_tuple(table,&tuple_info,&address);
 
-            // del_flag=del_where_clause->calc(table,tuple_info);
+            del_flag=del_where_clause->calc(table,tuple_info);
 
             if(del_flag==true)
             {
@@ -248,7 +266,7 @@ void DELETE_NODE::run()
             while(address.address_int())
             {
                 record.get_tuple(table,address,&tuple_info,&address);
-                // del_flag=del_where_clause->calc(table,tuple_info);
+                del_flag=del_where_clause->calc(table,tuple_info);
                 if(del_flag==true)
                 {
                     record.delete_tuple(table,address);
@@ -264,8 +282,8 @@ void DELETE_NODE::run()
     
 }
 
-/*
-bool FORMULA_NODE::calc()
+
+bool FORMULA_NODE::calc(Table_info table,Tuple_info tuple_info)
 {
     if(cmp<=14&&cmp>=12)//and or not
     {
@@ -273,13 +291,13 @@ bool FORMULA_NODE::calc()
         bool rb;
         switch(cmp)
         {
-            case 12:lb=expr_l->calc_bool();//and
-                    rb=expr_r->calc_bool();
-                    return (lb && rb);
-            case 13:lb=expr_l->calc_bool();//or
-                    rb=expr_r->calc_bool();
-                    return (lb || rb);
-            case 14:lb=expr_l->calc_bool();//not
+            case 12:lb=expr_l->calc_bool(table,tuple_info);//and
+                    rb=expr_r->calc_bool(table,tuple_info);
+                    return (lb & rb);
+            case 13:lb=expr_l->calc_bool(table,tuple_info);//or
+                    rb=expr_r->calc_bool(table,tuple_info);
+                    return (lb | rb);
+            case 14:lb=expr_l->calc_bool(table,tuple_info);//not
                     return (!lb);
         }
     }
@@ -287,48 +305,50 @@ bool FORMULA_NODE::calc()
     {
         if(cmp>=1&&cmp<=6)// < > <= >= != =
         {
-            calc_bool();
+            return calc_bool(table,tuple_info);
         }
         else
         {
-            Error error(13) //Invalid where clause
+            Error error(13); //Invalid where clause
             throw error;
         }
     }
+    return false;
 }
 
-bool FLOMULA_NODE::calc_bool()
+bool FORMULA_NODE::calc_bool(Table_info table,Tuple_info tuple_info)
 {
-    type * t1;
-    type * t2;
+    ptype t1;
+    ptype t2;
 
-    std::stringstream ss;
-    std::string s,ls,rs;
+    std::string ls,rs;
 
-    ls=expr_l->calc_num(t1);
-    rs=expr_r->calc_num(t2);
+    ls=expr_l->calc_num(t1,table,tuple_info);
+    rs=expr_r->calc_num(t2,table,tuple_info);
 
     float ln=0;
     float rn=0;
 
-    if(cmp==3&&(*t1==*t2)&&(*t1=C_STRING))//string
+    if(cmp==3&&(t1==t2)&&(t1=C_STRING))//string
     {
         return (ls==rs);
     }
     else//num
     {
-        if((*t1==*t2)&&(*t1!=C_STRING))
+        if((t1==t2)&&(t1!=C_STRING))
         {
-            ls>>ss;
+            std::stringstream ss;
+            ss<<ls;
             ss>>ln;
-            rs>>ss;
-            ss>>rn;
-            switch(cmp):
+            std::stringstream ss2;
+            ss2<<rs;
+            ss2>>rn;
+            switch(cmp)
             {
                 case 1: return (ln < rn);
                 case 2: return (ln > rn);
-                case 3: return (ln == rn);
-                case 4: return (ln != rn);
+                case 3: return (ln != rn);
+                case 4: return (ln == rn);
                 case 5: return (ln <= rn);
                 case 6: return (ln >= rn);
             }
@@ -339,9 +359,10 @@ bool FLOMULA_NODE::calc_bool()
             throw error;
         }
     }
+    return false;
 }
 
-bool FLOAT_NODE::calc_bool()
+bool FLOAT_NODE::calc_bool(Table_info table,Tuple_info tuple_info)
 {
     if(float_num!=0)
     {
@@ -353,7 +374,7 @@ bool FLOAT_NODE::calc_bool()
     }
 }
 
-bool INT_NODE::calc_bool()
+bool INT_NODE::calc_bool(Table_info table,Tuple_info tuple_info)
 {
     if(int_num!=0)
     {
@@ -365,121 +386,156 @@ bool INT_NODE::calc_bool()
     }
 }
 
-// bool NAME_NODE::calc_bool()
-// {
+bool NAME_NODE::calc_bool(Table_info table,Tuple_info tuple_info)
+{
+    std::stringstream ss;
+    float n;
+    for(int i=0;i<table.attribute_list.size();i++)
+    {
+        if(name==table.attribute_list[i].attribute_name)
+        {
+            if(table.attribute_list[i].type==SQL_STRING)
+            {
+                Error error(14);
+                throw error;
+            }
+            else
+            {
+                ss<<tuple_info.info[i];
+                ss>>n;
+                return n==0?false:true;
+            }
+        }
+    }
+    Error error(15);
+    throw error;
+    return false;
+}
 
-// }
-
-bool STRING_NODE::calc_bool()
+bool STRING_NODE::calc_bool(Table_info table,Tuple_info tuple_info)
 {
     Error error(14);
     throw error;
 }
 
-std::string FORMULA_NODE::calc_num(type * t)
+std::string FORMULA_NODE::calc_num(ptype& t,Table_info table,Tuple_info tuple_info)
 {
-    std::stringstream ss;
     std::string s;
 
-        type * t1;
-        type * t2;
+    ptype t1;
+    ptype t2;
 
-        std::string ls=expr_l->calc_num(t1);
+    std::string ls=expr_l->calc_num(t1,table,tuple_info);
+    
 
-        if (*t1!=C_STRING && cmp==11)
+    if (t1!=C_STRING && cmp==11)
+    {
+        float ln=0;
+        std::stringstream ss;
+        ss<<ls;ss>>ln;
+        t=C_NUM;
+        ss<<(-ln);
+        ss>>s;
+        return s;
+    }
+    else
+    {
+        std::string rs=expr_r->calc_num(t2,table,tuple_info);
+
+        if ((t1==t2)&&(t1!=C_STRING))
         {
-            *t=C_NUM;
-            (-ln)>>ss;
-            ss>>s;
-            return s
+            float ln=0;
+            float rn=0;
+            std::stringstream ss1;
+            ss1<<ls;
+            ss1>>ln;
+            std::stringstream ss2;
+            ss2<<rs;
+            ss2>>rn;
+            t=C_NUM;
+            switch(cmp)
+            {
+                case 7: 
+                {
+                    std::stringstream ss;
+                    ss<<(ln+rn);
+                    ss>>s;
+                    return s;
+                }
+                case 8:
+                {
+                    std::stringstream ss;
+                    ss<<(ln-rn);
+                    ss>>s;
+                    return s;
+                }
+                case 9:
+                {
+                    std::stringstream ss;
+                    ss<<(ln*rn);
+                    ss>>s;
+                    return s;
+                }
+                case 10:
+                {
+                    std::stringstream ss;
+                    ss<<(ln/rn);
+                    ss>>s;
+                    return s;
+                }
+            }
         }
         else
         {
-            std::string rs=expr_r->calc_num(t2);
-
-            if ((*t1==*t2)&&(*t1!=C_STRING))
-            {
-                float ln=0;
-                float rn=0;
-                ss<<ls;ss>>ln;
-                ss<<rs;ss>>rn;
-                *t=C_NUM;
-                switch(cmp):
-                {
-                    case 7: 
-                    {
-                        (ln+rn)>>ss;
-                        ss>>s;
-                        return s;
-                    }
-                    case 8:
-                    {
-                        (ln-rn)>>ss;
-                        ss>>s;
-                        return s;
-                    }
-                    case 9:
-                    {
-                        (ln*rn)>>ss;
-                        ss>>s;
-                        return s;
-                    }
-                    case 10:
-                    {
-                        (ln/rn)>>ss;
-                        ss>>s;
-                        return s;
-                    }
-                }
-            }
-            else
-            {
-                Error error(12);
-                throw error;
-            }
+            Error error(12);
+            throw error;
         }
+    }
+    Error error(12);
+    throw error;
 }
+
     
-    
-std::string INT_NODE::calc_num(type * t)
+std::string INT_NODE::calc_num(ptype& t,Table_info table,Tuple_info tuple_info)
 {
     std::stringstream ss;
     std::string s;
-    *t=C_NUM;
-    int_num>>ss;
+    t=C_NUM;
+    ss<<int_num;
     ss>>s;
     return s;
 }
 
-std::string FLOAT_NODE::calc_num(type * t)
+
+std::string FLOAT_NODE::calc_num(ptype& t,Table_info table,Tuple_info tuple_info)
 {   
     std::stringstream ss;
     std::string s;
-    *t=C_NUM;
-    float_num>>ss;
+    t=C_NUM;
+    ss<<float_num;
     ss>>s;
     return s;
 }
 
-std::string STRING_NODE::calc_num(type * t)
+std::string STRING_NODE::calc_num(ptype& t,Table_info table,Tuple_info tuple_info)
 {
-    *t=C_STRING;
+    t=C_STRING;
     return s;
 }
 
-std::string NAME_NODE::calc_num(type * t) 
+std::string NAME_NODE::calc_num(ptype& t,Table_info table,Tuple_info tuple_info)
 {
     for(int i=0;i<table.attribute_list.size();i++)
     {
         if(name==table.attribute_list[i].attribute_name)
         {
-            *t=(table.attribute_list[i].type==SQL_STRING?C_STRING:C_NUM);
-            tuple_info.info[i]>>ss;
-            ss>>s;
-            return s;
+            t=(table.attribute_list[i].type==SQL_STRING?C_STRING:C_NUM);
+            return tuple_info.info[i];
         }
     }
-}*/
+    Error error(15);
+    throw error;
+}
 
 void CREATE_TABLE_NODE::run()
 {
@@ -500,7 +556,9 @@ void CREATE_TABLE_NODE::run()
         for(int i=0;i<attr_list.size();i++)
         {
             attribute.attribute_name=attr_list[i]->attr_name;
-
+            attribute.is_primary=0;
+            attribute.has_index=0;
+            
             std::cout<<attribute.attribute_name<<std::endl;
 
             attribute.type=(attr_list[i]->type==0?SQL_INT:(attr_list[i]->type==1?SQL_FLOAT:SQL_STRING));
@@ -530,6 +588,7 @@ void CREATE_TABLE_NODE::run()
                         if(pkey==table.attribute_list[i].attribute_name)
                         {
                             table.attribute_list[i].is_primary=1;
+                            table.attribute_list[i].is_only=1;
                         }
                     }
                 }
@@ -556,14 +615,12 @@ void CREATE_TABLE_NODE::run()
             std::string pkey="";
             std::string key="";
             std::string index="";
-            int pkey_flag=0;
 
             for(int i=0;i<sp_list.size();i++)
             {
                 if(sp_list[0]->key_type==0)
                 {
                     pkey=sp_list[i]->key_attr[0];
-                    pkey_flag++;
                     for(int i=0;i<table.attribute_list.size();i++)
                     {
                         if(pkey==table.attribute_list[i].attribute_name)

@@ -74,16 +74,11 @@ WHERE	{ return WHERE; }
 "||"            { return OR; }
 
 "="	{ yylval.subtok = 4; return COMPARISON; }
-"<=>"	{ yylval.subtok = 12; return COMPARISON; }
 ">="	{ yylval.subtok = 6; return COMPARISON; }
 ">"	{ yylval.subtok = 2; return COMPARISON; }
 "<="	{ yylval.subtok = 5; return COMPARISON; }
 "<"	{ yylval.subtok = 1; return COMPARISON; }
-"!="	|
-"<>"	{ yylval.subtok = 3; return COMPARISON; }
-
-"<<"	{ yylval.subtok = 1; return SHIFT; }
-">>"	{ yylval.subtok = 2; return SHIFT; }
+"!=" { yylval.subtok = 3; return COMPARISON; }
 
 
 [A-Za-z][A-Za-z0-9_]*	{ yylval.strval = strdup(yytext);

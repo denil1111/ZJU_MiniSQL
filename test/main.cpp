@@ -162,17 +162,17 @@ int main()
 	    intp.run_sql();
     
 		catalog.write_file();
-		// if (doc.LoadFile(xmlFile))
-		// {
-		//     //cout << 1 << endl;
-		//     doc.Print();
-		// }
-		// else
-		// {
-		//     std::cout << "can not parse xml cataolog.xml" << std::endl;
-		// }
+		if (doc.LoadFile(xmlFile))
+		{
+		    //cout << 1 << endl;
+		    doc.Print();
+		}
+		else
+		{
+		    std::cout << "can not parse xml cataolog.xml" << std::endl;
+		}
 
-		// std::cout << "===after change===" << std::endl;
+		std::cout << "===after change===" << std::endl;
 
 		return 0;
 

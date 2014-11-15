@@ -47,31 +47,29 @@
      ANDOP = 263,
      NOT = 264,
      COMPARISON = 265,
-     SHIFT = 266,
-     MOD = 267,
-     UMINUS = 268,
-     AND = 269,
-     CREATE = 270,
-     DATABASE = 271,
-     DATABASES = 272,
-     DELETE = 273,
-     DROP = 274,
-     FLOAT = 275,
-     FROM = 276,
-     INDEX = 277,
-     INSERT = 278,
-     INT = 279,
-     INTO = 280,
-     KEY = 281,
-     ON = 282,
-     PRIMARY = 283,
-     SELECT = 284,
-     SHOW = 285,
-     TABLE = 286,
-     UNIQUE = 287,
-     VALUES = 288,
-     VARCHAR = 289,
-     WHERE = 290
+     UMINUS = 266,
+     AND = 267,
+     CREATE = 268,
+     DATABASE = 269,
+     DATABASES = 270,
+     DELETE = 271,
+     DROP = 272,
+     FLOAT = 273,
+     FROM = 274,
+     INDEX = 275,
+     INSERT = 276,
+     INT = 277,
+     INTO = 278,
+     KEY = 279,
+     ON = 280,
+     PRIMARY = 281,
+     SELECT = 282,
+     SHOW = 283,
+     TABLE = 284,
+     UNIQUE = 285,
+     VALUES = 286,
+     VARCHAR = 287,
+     WHERE = 288
    };
 #endif
 /* Tokens.  */
@@ -83,31 +81,29 @@
 #define ANDOP 263
 #define NOT 264
 #define COMPARISON 265
-#define SHIFT 266
-#define MOD 267
-#define UMINUS 268
-#define AND 269
-#define CREATE 270
-#define DATABASE 271
-#define DATABASES 272
-#define DELETE 273
-#define DROP 274
-#define FLOAT 275
-#define FROM 276
-#define INDEX 277
-#define INSERT 278
-#define INT 279
-#define INTO 280
-#define KEY 281
-#define ON 282
-#define PRIMARY 283
-#define SELECT 284
-#define SHOW 285
-#define TABLE 286
-#define UNIQUE 287
-#define VALUES 288
-#define VARCHAR 289
-#define WHERE 290
+#define UMINUS 266
+#define AND 267
+#define CREATE 268
+#define DATABASE 269
+#define DATABASES 270
+#define DELETE 271
+#define DROP 272
+#define FLOAT 273
+#define FROM 274
+#define INDEX 275
+#define INSERT 276
+#define INT 277
+#define INTO 278
+#define KEY 279
+#define ON 280
+#define PRIMARY 281
+#define SELECT 282
+#define SHOW 283
+#define TABLE 284
+#define UNIQUE 285
+#define VALUES 286
+#define VARCHAR 287
+#define WHERE 288
 
 
 
@@ -133,7 +129,7 @@ typedef union YYSTYPE
 
 }
 /* Line 1529 of yacc.c.  */
-#line 137 "sql.hpp"
+#line 133 "sql.hpp"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

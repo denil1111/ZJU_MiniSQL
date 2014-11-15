@@ -65,7 +65,7 @@ void emit(char *s, ...);
 %token DELETE
 %token DROP
 %token FLOAT
-%token FROMs
+%token FROM
 %token INDEX
 %token INSERT
 %token INT
@@ -229,23 +229,21 @@ table_reference: NAME {$$=new std::vector<std::string>;
 //delete
 delete_stmt: DELETE FROM NAME opt_where
     {
+      emit("hello");
       $$=new DELETE_NODE;
 
       $$->del_tbl_name=std::string($3);
       free($3);
       //std::cout<<$$->select_tbl_list[0]<<std::endl;
       //std::cout<<$$->select_tbl_list[1]<<std::endl;
-      
-
-      //std::cout<<$4->cmp<<std::endl;
+      std::cout<<"parse_delete"<<std::endl;
+      std::cout<<$4->cmp<<std::endl;
       if($4==NULL){
         yyerror("expected where clause!");
       }
       else{
-        $$->del_where_clause=new DELETE_NODE;//must new 
-        *($$->del_where_clause)=*$4;
-        free($4);
-        //std::cout<<$$->del_where_clause->cmp<<std::endl;
+        $$->del_where_clause=$4;
+        std::cout<<$$->del_where_clause->cmp<<std::endl;
         //std::cout<<$$->del_where_clause->l->name<<std::endl;
       }  
     }

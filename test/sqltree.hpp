@@ -12,7 +12,9 @@
 #include <iostream>
 #include <stdlib.h>
 #include "catalog.h"
+#include "record.h"
 #include "tinyxml.h"
+enum ptype{C_NUM,C_STRING};
 // using namespace std;
 
 enum nodekind{
@@ -107,9 +109,9 @@ public:
     std::vector<std::string> key_attr;
 
     virtual void run();
-    // virtual bool logic_calc();
-    // virtual int arith_calc();
-    // virtual void comp_calc();
+    virtual bool calc(Table_info,Tuple_info);
+    virtual bool calc_bool(Table_info,Tuple_info);
+    virtual std::string calc_num(ptype&,Table_info,Tuple_info);
     virtual ~Parse_Node(){}
 
 };
@@ -123,6 +125,8 @@ public:
         this->int_num=a;
         // catalog.read_file();
     }
+    bool calc_bool(Table_info,Tuple_info);
+    std::string calc_num(ptype&,Table_info,Tuple_info);
 };
 
 class NAME_NODE:public Parse_Node
@@ -134,6 +138,8 @@ public:
         this->name=s;
         // catalog.read_file();
     }
+    bool calc_bool(Table_info,Tuple_info);
+    std::string calc_num(ptype&,Table_info,Tuple_info);
 };
 
 class STRING_NODE:public Parse_Node
@@ -145,6 +151,8 @@ public:
         this->s=s;
         // catalog.read_file();
     }
+    bool calc_bool(Table_info,Tuple_info);
+    std::string calc_num(ptype&,Table_info,Tuple_info);
 };
 
 class FLOAT_NODE:public Parse_Node
@@ -156,6 +164,8 @@ public:
         this->float_num=a;
         // catalog.read_file();
     }
+    bool calc_bool(Table_info,Tuple_info);
+    std::string calc_num(ptype&,Table_info,Tuple_info);
 };
 
 class ATTR_NODE:public Parse_Node
@@ -190,6 +200,9 @@ public:
         this->expr_r = r;
         // catalog.read_file();
     }
+    bool calc(Table_info,Tuple_info);
+    bool calc_bool(Table_info,Tuple_info);
+    std::string calc_num(ptype& ,Table_info,Tuple_info);
     ~FORMULA_NODE();
 };
 
@@ -301,8 +314,8 @@ public:
 class Interpreter
 {  
 private:
-    Parse_Node * plan_tree;
 public:
+    Parse_Node * plan_tree;
     Interpreter()
     {
     }
