@@ -146,7 +146,10 @@ void DROP_DATABASE_NODE::run()
     if(catalog->is_database(drop_db_name))
     {
         catalog->drop_database(drop_db_name);
-        now_db="";
+        if(drop_db_name==now_db)
+        {
+            now_db="";
+        }
         //implement
     }
     else
@@ -178,9 +181,9 @@ void SELECT_NODE::run()
         temp_table.table_name=strc;
         temp_table.database=now_db;
         temp_table.tuple_size=0;
-        if(select_list[0]=="select_all_flag")
+        table=catalog->get_table(now_db,select_from_clause[0]->name);
+        if(select_list[0]=="select_all_flag")//select *
         {
-            table=catalog->get_table(now_db,select_from_clause[0]->name);
             temp_table.tuple_size=table.tuple_size;
             for(int j=0;j<table.attribute_list.size();j++)
             {
@@ -198,7 +201,7 @@ void SELECT_NODE::run()
                     if(select_list[i]==table.attribute_list[j].attribute_name)
                     {
                         temp_table.attribute_list.push_back(table.attribute_list[j]);
-                        // std::cout<<"attribute:"<<table.attribute_list[j].attribute_name<<std::endl;
+                        std::cout<<"attribute:"<<table.attribute_list[j].attribute_name<<std::endl;
                         temp_table.tuple_size+=table.attribute_list[j].size;
                         v.push_back(j);
                         // std::cout<<"list number:"<<j<<std::endl;
@@ -209,6 +212,7 @@ void SELECT_NODE::run()
             }
             if(flag!=select_list.size())
             {
+                std::cout<<"bug"<<std::endl;
                 Error error(15);
                 throw error;
             }
@@ -393,16 +397,26 @@ void DELETE_NODE::run()
         Record record;
         Table_info table;
         table=catalog->get_table(now_db,del_tbl_name);
-        if(star_flag)
+        if(star_flag)//delete *
         {
             record.delete_all_tuple(table);
+            //implement;
         } 
         else
         {
-            std::cout<<"inside delete"<<std::endl;
+            // std::cout<<"inside delete"<<std::endl;
             Tuple_info tuple_info;
             Address address,next_address;
+            std::vector <int> v;
             bool del_flag;
+
+            for(int i = 0;i<table.attribute_list.size();i++)
+            {
+                if(table.attribute_list[i].has_index==1)
+                {
+                    v.push_back(i);
+                }
+            }
 
             record.get_first_address(table,&address);
 
@@ -412,6 +426,11 @@ void DELETE_NODE::run()
                 del_flag=del_where_clause->calc(table,tuple_info);
                 if(del_flag==true)
                 {
+                    for(int i=0;i<v.size();i++)
+                    {
+                        Bptree bptree;
+                        bptree.deletion(table,table.attribute_list[i],tuple_info.info[i]);
+                    }
                     record.delete_tuple(table,address);
                 }
                 address=next_address;
@@ -933,17 +952,24 @@ void CREATE_TABLE_NODE::run()
 
         Attribute attribute;
 
+        std::vector <int> v;
+
         for(int i=0;i<attr_list.size();i++)
         {
             attribute.attribute_name=attr_list[i]->attr_name;
             attribute.is_primary=0;
             attribute.has_index=0;
+            attribute.is_only=0;
             
             // std::cout<<attribute.attribute_name<<std::endl;
 
             attribute.type=(attr_list[i]->type==0?SQL_INT:(attr_list[i]->type==1?SQL_FLOAT:SQL_STRING));
             attribute.size=attr_list[i]->type==2?attr_list[i]->char_length:4;
             attribute.is_only=attr_list[i]->unique_flag;
+            if(attribute.is_only)
+            {
+                v.push_back(i);
+            }
             table.attribute_list.push_back(attribute);
             table.tuple_size+=attribute.size;
         }
@@ -1070,11 +1096,29 @@ void CREATE_TABLE_NODE::run()
                 }  
             }
         }
+
+        for(int i=0;i<v.size();i++)
+        {
+            Index_info index_info;
+            index_info.index_name=table.table_name+"_"+table.attribute_list[v[i]].attribute_name;
+
+            // std::cout<<index_info.index_name<<std::endl;
+
+            index_info.database_name=now_db;
+            index_info.table_name=table.table_name;
+            index_info.attribute_name=table.attribute_list[v[i]].attribute_name;
+
+            catalog->create_index(index_info);
+
+            Bptree bptree;
+            bptree.create(table,table.attribute_list[v[i]]);
+            // std::cout<<"out"<<std::endl;
+        }
         
     }
     else
     {
-        printf("error3\n");
+        //printf("error3\n");
         Error error(3);
         throw error;
     }
@@ -1228,7 +1272,7 @@ void INSERT_NODE::run()
     } 
     else                                                             
     {
-        std::cout<<"Inside Error"<<std::endl;
+        // std::cout<<"Inside Error"<<std::endl;
         Error error(2);//"table does not exist"
         throw error;
     }

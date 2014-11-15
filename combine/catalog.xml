@@ -16,14 +16,22 @@
             <has_index>0</has_index>
         </Attribute>
     </Table>
-    <Table name="hello">
+    <Table name="t">
         <Attribute name="a">
             <type>int</type>
             <size>4</size>
+            <is_primary>1</is_primary>
+            <is_only>1</is_only>
+            <has_index>1</has_index>
+            <index_name>t_a</index_name>
+        </Attribute>
+        <Attribute name="b">
+            <type>int</type>
+            <size>4</size>
             <is_primary>0</is_primary>
-            <is_only>0</is_only>
-            <has_index>0</has_index>
+            <is_only>1</is_only>
+            <has_index>1</has_index>
+            <index_name>t_b</index_name>
         </Attribute>
     </Table>
 </Databse>
-<Databse name="hello" />

@@ -250,7 +250,8 @@ delete_stmt: DELETE FROM NAME opt_where
       //std::cout<<"parse_delete"<<std::endl;
       //std::cout<<$4->cmp<<std::endl;
       if($4==NULL){
-        yyerror("expected where clause!");
+        Error error(18,"expected where clause!");
+        throw error;
       }
       else{
         $$->del_where_clause=$4;
@@ -331,8 +332,9 @@ create_table_stmt: CREATE TABLE NAME
 
         if($5->size()>32)
         {
-          yyerror("More than 32 attributes!");
-          exit(0);
+          Error error(18,"More than 32 attributes!");
+          throw error;
+          
         }
         $$->attr_list=*$5;
         //std::cout<<$$->attr_list[0]->attr_name<<std::endl;
@@ -352,8 +354,9 @@ create_table_stmt: CREATE TABLE NAME
 
         if($5->size()>32)
         {
-          yyerror("More than 32 attributes!");
-          exit(0);
+          Error error(18,"More than 32 attributes!");
+          throw error;
+          
         }
         $$->attr_list=*$5;
         //std::cout<<$$->attr_list[0]->attr_name<<std::endl;
@@ -379,8 +382,9 @@ create_sp: PRIMARY KEY '(' column_list ')'
         //emit("primary key %d",$$->key_attr.size());
         if($$->key_attr.size()>1)
         {
-          yyerror("More than 2 primary keys");
-          exit(0);
+          Error error(18,"More than 2 primary keys");
+          throw error;
+          
         }
         free($4);
     }
@@ -436,8 +440,9 @@ opt_length:{$$=0;}
       }
       else
       {
-        yyerror("%d is out of char range(1~255)!",$2);
-        exit(0);
+        Error error(18,"out of char range(1~255)!");
+        throw error;
+        
         //Error error(6);
         //throw error;
       }
@@ -539,12 +544,12 @@ yyerror(char *s, ...)
 {
   extern int yylineno;
 
-  va_list ap;
-  va_start(ap, s);
+  //va_list ap;
+  //va_start(ap, s);
 
-  fprintf(stderr, "%d: error: ", yylineno);
-  vfprintf(stderr, s, ap);
-  fprintf(stderr, "\n");
+  //fprintf(stderr, "%d: error: ", yylineno);
+  //vfprintf(stderr, s, ap);
+  //fprintf(stderr, "\n");
 }
 
 

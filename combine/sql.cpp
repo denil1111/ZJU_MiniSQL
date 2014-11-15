@@ -538,12 +538,12 @@ static const yytype_uint16 yyrline[] =
 {
        0,   129,   129,   135,   140,   141,   142,   143,   151,   152,
      153,   154,   155,   156,   157,   158,   159,   163,   197,   222,
-     223,   229,   230,   231,   241,   261,   274,   289,   290,   293,
-     295,   298,   299,   300,   307,   317,   326,   348,   366,   371,
-     374,   387,   394,   403,   404,   408,   413,   416,   426,   427,
-     430,   431,   447,   448,   449,   455,   468,   477,   486,   495,
-     498,   499,   502,   505,   506,   507,   508,   509,   510,   511,
-     512,   518,   519,   520
+     223,   229,   230,   231,   241,   262,   275,   290,   291,   294,
+     296,   299,   300,   301,   308,   318,   327,   350,   369,   374,
+     377,   391,   398,   407,   408,   412,   417,   420,   430,   431,
+     434,   435,   452,   453,   454,   460,   473,   482,   491,   500,
+     503,   504,   507,   510,   511,   512,   513,   514,   515,   516,
+     517,   523,   524,   525
 };
 #endif
 
@@ -1733,7 +1733,8 @@ yyreduce:
       //std::cout<<"parse_delete"<<std::endl;
       //std::cout<<$4->cmp<<std::endl;
       if((yyvsp[(4) - (4)].node_p)==NULL){
-        yyerror("expected where clause!");
+        Error error(18,"expected where clause!");
+        throw error;
       }
       else{
         (yyval.node_p)->del_where_clause=(yyvsp[(4) - (4)].node_p);
@@ -1744,7 +1745,7 @@ yyreduce:
     break;
 
   case 25:
-#line 261 "sql.y"
+#line 262 "sql.y"
     {
         (yyval.node_p)=new DELETE_NODE;
 
@@ -1758,7 +1759,7 @@ yyreduce:
     break;
 
   case 26:
-#line 275 "sql.y"
+#line 276 "sql.y"
     {
         (yyval.node_p)=new INSERT_NODE;
 
@@ -1774,38 +1775,38 @@ yyreduce:
     break;
 
   case 27:
-#line 289 "sql.y"
+#line 290 "sql.y"
     {(yyval.string_vec)=new std::vector<std::vector<std::string> >;(yyval.string_vec)->push_back(*(yyvsp[(2) - (3)].string_list));delete (yyvsp[(2) - (3)].string_list);;}
     break;
 
   case 28:
-#line 290 "sql.y"
+#line 291 "sql.y"
     {(yyval.string_vec)->push_back(*(yyvsp[(4) - (5)].string_list));free((yyvsp[(4) - (5)].string_list));;}
     break;
 
   case 29:
-#line 293 "sql.y"
+#line 294 "sql.y"
     {(yyval.string_list)=new std::vector<std::string>;
     (yyval.string_list)->push_back(*(yyvsp[(1) - (1)].str));;}
     break;
 
   case 30:
-#line 295 "sql.y"
+#line 296 "sql.y"
     {(yyval.string_list)->push_back(*(yyvsp[(3) - (3)].str));;}
     break;
 
   case 31:
-#line 298 "sql.y"
-    {(yyval.str)=new std::string((yyvsp[(1) - (1)].strval));;}
-    break;
-
-  case 32:
 #line 299 "sql.y"
     {(yyval.str)=new std::string((yyvsp[(1) - (1)].strval));;}
     break;
 
-  case 33:
+  case 32:
 #line 300 "sql.y"
+    {(yyval.str)=new std::string((yyvsp[(1) - (1)].strval));;}
+    break;
+
+  case 33:
+#line 301 "sql.y"
     {
     std::stringstream ss;
     (yyval.str)=new std::string;
@@ -1816,7 +1817,7 @@ yyreduce:
     break;
 
   case 34:
-#line 307 "sql.y"
+#line 308 "sql.y"
     {
     std::stringstream ss;
     (yyval.str)=new std::string;
@@ -1826,7 +1827,7 @@ yyreduce:
     break;
 
   case 35:
-#line 317 "sql.y"
+#line 318 "sql.y"
     {
         (yyval.node_p)=new CREATE_DATABASE_NODE;
         (yyval.node_p)->create_db_name=std::string((yyvsp[(3) - (3)].strval));
@@ -1836,15 +1837,16 @@ yyreduce:
     break;
 
   case 36:
-#line 328 "sql.y"
+#line 329 "sql.y"
     {
         (yyval.node_p)=new CREATE_TABLE_NODE; 
         (yyval.node_p)->create_tbl_name=std::string((yyvsp[(3) - (8)].strval));
 
         if((yyvsp[(5) - (8)].node_list)->size()>32)
         {
-          yyerror("More than 32 attributes!");
-          exit(0);
+          Error error(18,"More than 32 attributes!");
+          throw error;
+          
         }
         (yyval.node_p)->attr_list=*(yyvsp[(5) - (8)].node_list);
         //std::cout<<$$->attr_list[0]->attr_name<<std::endl;
@@ -1860,15 +1862,16 @@ yyreduce:
     break;
 
   case 37:
-#line 349 "sql.y"
+#line 351 "sql.y"
     {
         (yyval.node_p)=new CREATE_TABLE_NODE; 
         (yyval.node_p)->create_tbl_name=std::string((yyvsp[(3) - (6)].strval));
 
         if((yyvsp[(5) - (6)].node_list)->size()>32)
         {
-          yyerror("More than 32 attributes!");
-          exit(0);
+          Error error(18,"More than 32 attributes!");
+          throw error;
+          
         }
         (yyval.node_p)->attr_list=*(yyvsp[(5) - (6)].node_list);
         //std::cout<<$$->attr_list[0]->attr_name<<std::endl;
@@ -1879,7 +1882,7 @@ yyreduce:
     break;
 
   case 38:
-#line 367 "sql.y"
+#line 370 "sql.y"
     {
             (yyval.node_list)=new std::vector<Parse_Node *>;
             (yyval.node_list)->push_back((yyvsp[(1) - (1)].node_p));
@@ -1887,12 +1890,12 @@ yyreduce:
     break;
 
   case 39:
-#line 371 "sql.y"
+#line 374 "sql.y"
     {(yyval.node_list)->push_back((yyvsp[(3) - (3)].node_p));;}
     break;
 
   case 40:
-#line 375 "sql.y"
+#line 378 "sql.y"
     {
         (yyval.node_p)=new SPECIAL_ATTR_NODE;
         (yyval.node_p)->key_type=0;
@@ -1900,15 +1903,16 @@ yyreduce:
         //emit("primary key %d",$$->key_attr.size());
         if((yyval.node_p)->key_attr.size()>1)
         {
-          yyerror("More than 2 primary keys");
-          exit(0);
+          Error error(18,"More than 2 primary keys");
+          throw error;
+          
         }
         free((yyvsp[(4) - (5)].string_list));
     ;}
     break;
 
   case 41:
-#line 388 "sql.y"
+#line 392 "sql.y"
     {
         (yyval.node_p)=new SPECIAL_ATTR_NODE;
         (yyval.node_p)->key_type=1;
@@ -1918,7 +1922,7 @@ yyreduce:
     break;
 
   case 42:
-#line 395 "sql.y"
+#line 399 "sql.y"
     {   
         (yyval.node_p)=new SPECIAL_ATTR_NODE;
         (yyval.node_p)->key_type=2;
@@ -1928,17 +1932,17 @@ yyreduce:
     break;
 
   case 43:
-#line 403 "sql.y"
+#line 407 "sql.y"
     {(yyval.string_list)=new std::vector<std::string>;(yyval.string_list)->push_back((yyvsp[(1) - (1)].strval)); ;}
     break;
 
   case 44:
-#line 404 "sql.y"
+#line 408 "sql.y"
     {(yyval.string_list)->push_back((yyvsp[(3) - (3)].strval)); ;}
     break;
 
   case 45:
-#line 409 "sql.y"
+#line 413 "sql.y"
     {
         (yyval.node_list)=new std::vector<Parse_Node *>;
         (yyval.node_list)->push_back((yyvsp[(1) - (1)].node_p));
@@ -1946,12 +1950,12 @@ yyreduce:
     break;
 
   case 46:
-#line 413 "sql.y"
+#line 417 "sql.y"
     {(yyval.node_list)->push_back((yyvsp[(3) - (3)].node_p));;}
     break;
 
   case 47:
-#line 417 "sql.y"
+#line 421 "sql.y"
     {
                 (yyval.node_p)=new ATTR_NODE;
                 (yyval.node_p)->attr_name=std::string((yyvsp[(1) - (4)].strval));
@@ -1962,22 +1966,22 @@ yyreduce:
     break;
 
   case 48:
-#line 426 "sql.y"
+#line 430 "sql.y"
     {(yyval.boolval)=false;;}
     break;
 
   case 49:
-#line 427 "sql.y"
+#line 431 "sql.y"
     {(yyval.boolval)=true;;}
     break;
 
   case 50:
-#line 430 "sql.y"
+#line 434 "sql.y"
     {(yyval.intval)=0;;}
     break;
 
   case 51:
-#line 432 "sql.y"
+#line 436 "sql.y"
     {   
       if((yyvsp[(2) - (3)].intval)>=1&&(yyvsp[(2) - (3)].intval)<=255)
       {
@@ -1985,8 +1989,9 @@ yyreduce:
       }
       else
       {
-        yyerror("%d is out of char range(1~255)!",(yyvsp[(2) - (3)].intval));
-        exit(0);
+        Error error(18,"out of char range(1~255)!");
+        throw error;
+        
         //Error error(6);
         //throw error;
       }
@@ -1994,22 +1999,22 @@ yyreduce:
     break;
 
   case 52:
-#line 447 "sql.y"
+#line 452 "sql.y"
     { (yyval.intval) = 0; ;}
     break;
 
   case 53:
-#line 448 "sql.y"
+#line 453 "sql.y"
     { (yyval.intval) = 1; ;}
     break;
 
   case 54:
-#line 449 "sql.y"
+#line 454 "sql.y"
     { (yyval.intval) = 2; ;}
     break;
 
   case 55:
-#line 455 "sql.y"
+#line 460 "sql.y"
     {
         (yyval.node_p)=new CREATE_INDEX_NODE;
         (yyval.node_p)->create_index_name=std::string((yyvsp[(3) - (8)].strval));
@@ -2023,7 +2028,7 @@ yyreduce:
     break;
 
   case 56:
-#line 468 "sql.y"
+#line 473 "sql.y"
     {
         (yyval.node_p)=new DROP_DATABASE_NODE;
         (yyval.node_p)->drop_db_name=std::string((yyvsp[(3) - (3)].strval));
@@ -2033,7 +2038,7 @@ yyreduce:
     break;
 
   case 57:
-#line 477 "sql.y"
+#line 482 "sql.y"
     {
         (yyval.node_p)=new DROP_TABLE_NODE;
         (yyval.node_p)->drop_tbl_name=std::string((yyvsp[(3) - (3)].strval));
@@ -2043,7 +2048,7 @@ yyreduce:
     break;
 
   case 58:
-#line 486 "sql.y"
+#line 491 "sql.y"
     {
         (yyval.node_p)=new DROP_INDEX_NODE;
         (yyval.node_p)->drop_index_name=std::string((yyvsp[(3) - (5)].strval));
@@ -2053,66 +2058,66 @@ yyreduce:
     break;
 
   case 59:
-#line 495 "sql.y"
+#line 500 "sql.y"
     {std::string all_s((yyvsp[(1) - (1)].strval));(yyval.node_p)=new NAME_NODE(all_s);
     //std::cout<<$$->name<<std::endl;
     ;}
     break;
 
   case 60:
-#line 498 "sql.y"
+#line 503 "sql.y"
     {std::string all_s((yyvsp[(1) - (1)].strval));(yyval.node_p)=new STRING_NODE(all_s);;}
     break;
 
   case 61:
-#line 499 "sql.y"
+#line 504 "sql.y"
     {(yyval.node_p)=new INT_NODE((yyvsp[(1) - (1)].intval));
     //std::cout<<$$->int_num<<std::endl;
     ;}
     break;
 
   case 62:
-#line 502 "sql.y"
+#line 507 "sql.y"
     {(yyval.node_p)=new FLOAT_NODE((yyvsp[(1) - (1)].floatval));;}
     break;
 
   case 63:
-#line 505 "sql.y"
+#line 510 "sql.y"
     {(yyval.node_p)=new FORMULA_NODE(7,(yyvsp[(1) - (3)].node_p),(yyvsp[(3) - (3)].node_p));;}
     break;
 
   case 64:
-#line 506 "sql.y"
+#line 511 "sql.y"
     {(yyval.node_p)=new FORMULA_NODE(8,(yyvsp[(1) - (3)].node_p),(yyvsp[(3) - (3)].node_p));;}
     break;
 
   case 65:
-#line 507 "sql.y"
+#line 512 "sql.y"
     {(yyval.node_p)=new FORMULA_NODE(9,(yyvsp[(1) - (3)].node_p),(yyvsp[(3) - (3)].node_p));;}
     break;
 
   case 66:
-#line 508 "sql.y"
+#line 513 "sql.y"
     {(yyval.node_p)=new FORMULA_NODE(10,(yyvsp[(1) - (3)].node_p),(yyvsp[(3) - (3)].node_p));;}
     break;
 
   case 67:
-#line 509 "sql.y"
+#line 514 "sql.y"
     {(yyval.node_p)=new FORMULA_NODE(11,(yyvsp[(2) - (2)].node_p),NULL);;}
     break;
 
   case 68:
-#line 510 "sql.y"
+#line 515 "sql.y"
     {(yyval.node_p)=new FORMULA_NODE(12,(yyvsp[(1) - (3)].node_p),(yyvsp[(3) - (3)].node_p));;}
     break;
 
   case 69:
-#line 511 "sql.y"
+#line 516 "sql.y"
     {(yyval.node_p)=new FORMULA_NODE(13,(yyvsp[(1) - (3)].node_p),(yyvsp[(3) - (3)].node_p));;}
     break;
 
   case 70:
-#line 512 "sql.y"
+#line 517 "sql.y"
     {
     //$$=new FORMULA_NODE;//do not must
     (yyval.node_p)=new FORMULA_NODE((yyvsp[(2) - (3)].subtok),(yyvsp[(1) - (3)].node_p),(yyvsp[(3) - (3)].node_p));
@@ -2122,23 +2127,23 @@ yyreduce:
     break;
 
   case 71:
-#line 518 "sql.y"
+#line 523 "sql.y"
     {(yyval.node_p)=(yyvsp[(2) - (3)].node_p);;}
     break;
 
   case 72:
-#line 519 "sql.y"
+#line 524 "sql.y"
     {(yyval.node_p)=new FORMULA_NODE(14,(yyvsp[(2) - (2)].node_p),NULL);;}
     break;
 
   case 73:
-#line 520 "sql.y"
+#line 525 "sql.y"
     {(yyval.node_p)=new FORMULA_NODE(14,(yyvsp[(2) - (2)].node_p),NULL);;}
     break;
 
 
 /* Line 1267 of yacc.c.  */
-#line 2142 "sql.cpp"
+#line 2147 "sql.cpp"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -2352,7 +2357,7 @@ yyreturn:
 }
 
 
-#line 523 "sql.y"
+#line 528 "sql.y"
 
 
 void
@@ -2372,12 +2377,12 @@ yyerror(char *s, ...)
 {
   extern int yylineno;
 
-  va_list ap;
-  va_start(ap, s);
+  //va_list ap;
+  //va_start(ap, s);
 
-  fprintf(stderr, "%d: error: ", yylineno);
-  vfprintf(stderr, s, ap);
-  fprintf(stderr, "\n");
+  //fprintf(stderr, "%d: error: ", yylineno);
+  //vfprintf(stderr, s, ap);
+  //fprintf(stderr, "\n");
 }
 
 

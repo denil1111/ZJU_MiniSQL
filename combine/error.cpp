@@ -34,9 +34,9 @@ const std::string Error::error_list[]={
 Error::Error(int number)
 {
     error_number=number;
-    std::cout<<"in error"<<std::endl;
+    // std::cout<<"in error"<<std::endl;
     error_content="";
-    std::cout<<"in error"<<std::endl;
+    // std::cout<<"in error"<<std::endl;
 }
 Error::Error(int number,std::string content)
 {
