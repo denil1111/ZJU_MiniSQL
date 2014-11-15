@@ -201,7 +201,7 @@ void SELECT_NODE::run()
                     if(select_list[i]==table.attribute_list[j].attribute_name)
                     {
                         temp_table.attribute_list.push_back(table.attribute_list[j]);
-                        std::cout<<"attribute:"<<table.attribute_list[j].attribute_name<<std::endl;
+                        // std::cout<<"attribute:"<<table.attribute_list[j].attribute_name<<std::endl;
                         temp_table.tuple_size+=table.attribute_list[j].size;
                         v.push_back(j);
                         // std::cout<<"list number:"<<j<<std::endl;
@@ -212,7 +212,7 @@ void SELECT_NODE::run()
             }
             if(flag!=select_list.size())
             {
-                std::cout<<"bug"<<std::endl;
+                // std::cout<<"bug"<<std::endl;
                 Error error(15);
                 throw error;
             }
@@ -234,7 +234,7 @@ void SELECT_NODE::run()
             //std::cout<<<<std::endl;
             
             bool indexed=false;
-            table=catalog->get_table(now_db,select_from_clause[0]->name);
+            //table=catalog->get_table(now_db,select_from_clause[0]->name);
             if (select_where_clause!=NULL)
             {
                 std::vector<Section> sections;
@@ -397,44 +397,35 @@ void DELETE_NODE::run()
         Record record;
         Table_info table;
         table=catalog->get_table(now_db,del_tbl_name);
-        if(star_flag)//delete *
+        Tuple_info tuple_info;
+        Address address,next_address;
+        std::vector <int> v;
+        bool del_flag;
+
+        for(int i = 0;i<table.attribute_list.size();i++)
         {
-            record.delete_all_tuple(table);
-            //implement;
-        } 
-        else
+            if(table.attribute_list[i].has_index==1)
+            {
+                v.push_back(i);
+            }
+        }
+
+        record.get_first_address(table,&address);
+
+        while(address.address_int())
         {
-            // std::cout<<"inside delete"<<std::endl;
-            Tuple_info tuple_info;
-            Address address,next_address;
-            std::vector <int> v;
-            bool del_flag;
-
-            for(int i = 0;i<table.attribute_list.size();i++)
+            record.get_tuple(table,address,&tuple_info,&next_address);
+            del_flag=del_where_clause->calc(table,tuple_info);
+            if(del_flag==true||star_flag==true)
             {
-                if(table.attribute_list[i].has_index==1)
+                for(int i=0;i<v.size();i++)
                 {
-                    v.push_back(i);
+                    Bptree bptree;
+                    bptree.deletion(table,table.attribute_list[i],tuple_info.info[i]);
                 }
+                record.delete_tuple(table,address);
             }
-
-            record.get_first_address(table,&address);
-
-            while(address.address_int())
-            {
-                record.get_tuple(table,address,&tuple_info,&next_address);
-                del_flag=del_where_clause->calc(table,tuple_info);
-                if(del_flag==true)
-                {
-                    for(int i=0;i<v.size();i++)
-                    {
-                        Bptree bptree;
-                        bptree.deletion(table,table.attribute_list[i],tuple_info.info[i]);
-                    }
-                    record.delete_tuple(table,address);
-                }
-                address=next_address;
-            }
+            address=next_address;
         }
     }
     else
